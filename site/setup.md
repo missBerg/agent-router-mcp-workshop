@@ -13,9 +13,11 @@ Pick one. In the room, Codespaces is the fast path: everything is pre-installed 
 ::: code-group
 
 ```bash [Codespaces (recommended)]
-# 1. Click "Open in GitHub Codespaces" below, then "Create codespace".
-# 2. Wait for the terminal. aigw, Envoy and otel-tui are pre-installed.
-# 3. In the terminal:
+# 1. Click "Open in GitHub Codespaces" below, then "Create codespace" (about 1–3 minutes).
+# 2. VS Code asks "Do you trust the authors of the files in this folder?"
+#    Click "Trust Folder & Continue" — the terminal needs it.
+# 3. If the status bar is stuck on "Opening Remote…" for over a minute, reload the page.
+# 4. Wait for the terminal. aigw, Envoy and otel-tui are pre-installed.
 ./lab help
 ```
 

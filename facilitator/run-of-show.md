@@ -72,6 +72,8 @@ with Claude Code / VS Code pointed at the router (`./lab connect`).
 | Symptom | Likely cause | Fix |
 | --- | --- | --- |
 | Codespace takes > 3 min | image not cached / prebuild missing | Keep going on the presenter screen; they catch up with `./lab solution N` |
+| Codespace stuck on "Opening Remote…" | the web client lost its connection while the container started | Reload the browser tab (seen during testing; reload fixed it) |
+| No terminal / `./lab doctor` didn't run | the workspace-trust dialog wasn't accepted | Click **Trust Folder & Continue** (or the shield icon → Trust) |
 | `./lab llm` test fails | wrong key/model, no credit | `./lab llm scripted` (still real tool calls), or fix the key |
 | Agent: "the model API refused … 200 tools" | Lab 0 / Lab 1 *before* filtering, OpenAI-family model | Expected! That's the point — finish Lab 1's filter |
 | Agent loops or wanders | small model | `--brain scripted`, or a larger model via `./lab llm` |
