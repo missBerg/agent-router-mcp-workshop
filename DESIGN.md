@@ -161,7 +161,7 @@ Attendees edit **one file**: `workspace/mcproute.yaml` (and, in Lab 3, `workspac
 ### Lab 0 — Get set up & meet the agent (5 min)
 
 - Open the Codespace (or local: `./lab setup`). `./lab doctor` shows green checks.
-- `./lab llm` picks a provider (GitHub Models in Codespaces, OpenAI, Anthropic, Gemini, Ollama, …) or `scripted`.
+- `./lab llm` picks a provider (OpenAI, Anthropic, Gemini, Ollama, any OpenAI-compatible endpoint) or `scripted`.
 - **Predict**: "The agent is connected straight to all five servers. How many tokens do the tool definitions cost before it reads your prompt?"
 - **Run**: `./lab agent --direct` → banner shows *200 tools from 5 servers · ≈N k tokens*. The task may still succeed — the point is the cost and the risk (it *could* call `deploy__delete_environment`).
 
@@ -220,7 +220,7 @@ v1.1.0). Shows "what works on your laptop deploys unchanged".
 
 | Path | Who | How |
 | --- | --- | --- |
-| **Codespaces** (recommended in-session) | Everyone, any OS | "Open in Codespaces" button / QR. Devcontainer uses a pre-built image (GHCR) with `aigw`, Envoy and otel-tui baked in (`npm ci` runs on create). LLM: GitHub Models via the Codespace's built-in `GITHUB_TOKEN` (free tier, per-attendee rate limits — confirm on the day with `./lab llm github`), or BYO key |
+| **Codespaces** (recommended in-session) | Everyone, any OS | "Open in Codespaces" button / QR. Devcontainer uses a pre-built image (GHCR) with `aigw`, Envoy and otel-tui baked in (`npm ci` runs on create). LLM: BYO key, or the `scripted` brain. (GitHub Models, the original zero-key plan, was retired on 2026-07-30 — verified in a Codespace: `models.github.ai` answers every request with a bare `200 OK`.) |
 | **Local** | macOS arm64 / Linux, decent bandwidth | `./lab setup` downloads `aigw` v1.1.0 + Envoy + `npm ci`. Warned as ~330 MB |
 
 ## 8. Repository layout
@@ -271,7 +271,7 @@ takehome/kubernetes/       kind + Helm + the same MCPRoute
 | Risk | Mitigation |
 | --- | --- |
 | Codespace slow to start | Prebuilt image; QR at minute 0; facilitator demo continues on screen |
-| No LLM key | GitHub Models in Codespaces; `scripted` brain still makes real tool calls through the router (clearly labelled) |
+| No LLM key | `scripted` brain still makes real tool calls through the router (clearly labelled); every checkpoint passes with it |
 | LLM picks odd tools / loops | Max-step limit; tool calls printed live; deterministic `scripted` fallback |
 | Someone falls behind | `./lab solution N`; every lab starts from a known state |
 | Public MCP server outage | Core path is 100% local |

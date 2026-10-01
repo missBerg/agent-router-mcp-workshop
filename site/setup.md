@@ -49,15 +49,14 @@ Pick a number from the list. The helper asks for a model (press Enter for the de
 
 | Provider | When to pick it | Default model |
 | --- | --- | --- |
-| `github` | **In Codespaces.** GitHub Models, free tier, uses the Codespace's own `GITHUB_TOKEN`. No key to paste. | `openai/gpt-4.1-mini` |
-| `openai` | You have an OpenAI API key. | `gpt-4.1-mini` |
-| `anthropic` | You have an Anthropic API key (OpenAI-compatible endpoint). | `claude-haiku-4-5` |
-| `gemini` | You have a Google AI Studio key (OpenAI-compatible endpoint). | `gemini-2.5-flash` |
+| `openai` | You have an OpenAI API key (or `OPENAI_API_KEY` is already set). | `gpt-4.1-mini` |
+| `anthropic` | You have an Anthropic API key, or `ANTHROPIC_API_KEY` is set (OpenAI-compatible endpoint). | `claude-haiku-4-5` |
+| `gemini` | You have a Google AI Studio key, or `GEMINI_API_KEY` is set (OpenAI-compatible endpoint). | `gemini-2.5-flash` |
 | `ollama` | Local machine, no key. Small local models often don't call tools reliably: type `qwen3:8b` or `llama3.1:8b` at the model prompt. | `qwen3:4b` |
 | `custom` | Any other OpenAI-compatible endpoint (vLLM, LiteLLM, Groq, …). | you choose |
-| `scripted` | No LLM at all. A fixed plan, but **every tool call is real** and goes through the router like any other. | — |
+| `scripted` | **No key? Pick this.** No LLM at all: a fixed plan, but **every tool call is real** and goes through the router like any other. Every lab and checkpoint works with it. | — |
 
-You can also name the provider directly, for example `./lab llm github` or `./lab llm scripted`.
+You can also name the provider directly, for example `./lab llm anthropic` or `./lab llm scripted`.
 
 Your choice is saved in `.env`, which git ignores. A key you type is never written into the router config: in the labs, the router reads it from the environment and the agent sends its model requests to the router without a key.
 

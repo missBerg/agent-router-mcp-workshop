@@ -79,7 +79,7 @@ You put **[Agent Router](https://theagentrouter.ai)** between the agent and thos
     </div>
     <div class="arch-group">
       <div class="arch-arrow" aria-hidden="true"><span>from <code>/v1</code>: OpenAI-compatible API</span></div>
-      <div class="arch-node arch-llm"><strong>LLM</strong><small>GitHub Models, OpenAI, Anthropic, Gemini, Ollama, …</small></div>
+      <div class="arch-node arch-llm"><strong>LLM</strong><small>OpenAI, Anthropic, Gemini, Ollama, …</small></div>
     </div>
   </div>
   <figcaption id="arch-caption">

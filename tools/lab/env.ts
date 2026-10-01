@@ -32,7 +32,7 @@ export function writeEnvFile(values: Record<string, string>) {
   fs.writeFileSync(ENV_FILE, lines.join("\n"), { mode: 0o600 });
 }
 
-export type ProviderId = "github" | "openai" | "anthropic" | "gemini" | "ollama" | "custom" | "scripted";
+export type ProviderId = "openai" | "anthropic" | "gemini" | "ollama" | "custom" | "scripted";
 
 export interface Provider {
   id: ProviderId;
@@ -46,20 +46,14 @@ export interface Provider {
 }
 
 export const PROVIDERS: Provider[] = [
-  {
-    id: "github",
-    label: "GitHub Models — free tier, uses your Codespace's GITHUB_TOKEN",
-    baseUrl: "https://models.github.ai/inference",
-    model: "openai/gpt-4.1-mini",
-    keyFromEnv: "GITHUB_TOKEN",
-  },
-  { id: "openai", label: "OpenAI", baseUrl: "https://api.openai.com/v1", model: "gpt-4.1-mini", keyHint: "sk-…" },
+  { id: "openai", label: "OpenAI", baseUrl: "https://api.openai.com/v1", model: "gpt-4.1-mini", keyHint: "sk-…", keyFromEnv: "OPENAI_API_KEY" },
   {
     id: "anthropic",
     label: "Anthropic (OpenAI-compatible endpoint)",
     baseUrl: "https://api.anthropic.com/v1",
     model: "claude-haiku-4-5",
     keyHint: "sk-ant-…",
+    keyFromEnv: "ANTHROPIC_API_KEY",
   },
   {
     id: "gemini",
@@ -67,6 +61,7 @@ export const PROVIDERS: Provider[] = [
     baseUrl: "https://generativelanguage.googleapis.com/v1beta/openai",
     model: "gemini-2.5-flash",
     keyHint: "AIza…",
+    keyFromEnv: "GEMINI_API_KEY",
   },
   { id: "ollama", label: "Ollama on this machine", baseUrl: "http://localhost:11434/v1", model: "qwen3:4b", noKey: true },
   { id: "custom", label: "Any other OpenAI-compatible endpoint", baseUrl: "", model: "" },

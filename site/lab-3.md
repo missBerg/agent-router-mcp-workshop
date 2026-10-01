@@ -94,10 +94,20 @@ Log empty? Envoy writes it about once a second. Wait a moment and run `./lab log
 - Under it, the agent records one **`execute_tool <tool>`** span per tool call.
 - The router adds its own span for every MCP request it handles: `ListTools` when the agent lists tools, and `CallTool` inside each `execute_tool` span. Agent and router spans share one trace because the agent sends a `traceparent` header with every request.
 
+![otel-tui showing one ship-it agent run as a single trace: the invoke_agent root span, the router's Initialize and ListTools spans, then an execute_tool span per tool call with the router's CallTool span nested inside each](/img/otel-tui-trace.png)
+
+In otel-tui: arrow keys move, **Enter** opens a trace, **Esc** goes back, **Ctrl+C** quits.
+
 Open the trace of the production run. Find the span that is marked as an error, select it, and read its status and attributes.
 
 4. Which tool did the router refuse? Which span says so?
 5. What does the error status on the router's span say? How is it different from the agent's `execute_tool` span above it?
+
+::: details Reveal: the denied span, as captured in a Codespace
+![otel-tui with the router's CallTool span selected under the agent's failed execute_tool deploy__deploy span. Its status is Error with the message "authorization failed", and its attributes include agent.id release-bot, mcp.tool.name deploy__deploy and the session.id](/img/otel-tui-denied-span.png)
+
+The router's `CallTool` span carries status **Error: authorization failed**, plus `agent.id: release-bot`, `mcp.tool.name: deploy__deploy` and the run's `session.id`. The agent's own `execute_tool` span above it only knows it got a `403`.
+:::
 
 Finally, ask the checkpoint what it thinks:
 

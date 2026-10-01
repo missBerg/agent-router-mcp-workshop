@@ -81,9 +81,9 @@ test("an Allow rule with an argument condition warns about tools/list", () => {
 });
 
 test("renderLlm: https provider with a path prefix gets TLS and a prefix", () => {
-  const y = renderLlm({ provider: "github", baseUrl: "https://models.github.ai/inference", model: "m", apiKey: "k" });
-  assert.match(y, /prefix: "inference"/);
-  assert.match(y, /hostname: models\.github\.ai\n\s+port: 443/);
+  const y = renderLlm({ provider: "gemini", baseUrl: "https://generativelanguage.googleapis.com/v1beta/openai", model: "m", apiKey: "k" });
+  assert.match(y, /prefix: "v1beta\/openai"/);
+  assert.match(y, /hostname: generativelanguage\.googleapis\.com\n\s+port: 443/);
   assert.match(y, /kind: BackendTLSPolicy/);
   assert.doesNotMatch(y, /\{\{/);
 });

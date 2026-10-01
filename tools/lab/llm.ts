@@ -2,8 +2,6 @@
 import { PROVIDERS, writeEnvFile, resolveLlm, type Provider, type LlmConfig } from "./env.ts";
 import { c, ok, fail, warn, hint, ask, title, spin, cmd } from "./ui.ts";
 
-const inCodespaces = () => process.env.CODESPACES === "true";
-
 export async function chooseLlm(arg?: string): Promise<boolean> {
   title("Choose the LLM for the sample agent");
   let provider = arg ? PROVIDERS.find((p) => p.id === arg) : undefined;
@@ -12,14 +10,15 @@ export async function chooseLlm(arg?: string): Promise<boolean> {
     return false;
   }
   if (!provider) {
-    const recommended = inCodespaces() && process.env.GITHUB_TOKEN ? "github" : undefined;
+    // If a provider's key is already in the environment, suggest that provider.
+    const detected = PROVIDERS.find((p) => p.keyFromEnv && process.env[p.keyFromEnv])?.id;
     PROVIDERS.forEach((p, i) => {
-      const star = p.id === recommended ? c.green("  ← recommended in Codespaces") : "";
+      const star = p.id === detected ? c.green(`  ← $${p.keyFromEnv} is set`) : "";
       console.log(`  ${c.bold(String(i + 1))}. ${c.cyan(p.id.padEnd(9))} ${p.label}${star}`);
     });
-    const answer = await ask(`\nPick 1-${PROVIDERS.length}${recommended ? ` [${PROVIDERS.findIndex((p) => p.id === recommended) + 1}]` : ""}: `, {
-      fallback: recommended ? String(PROVIDERS.findIndex((p) => p.id === recommended) + 1) : "",
-    });
+    console.log(c.dim("\n  No API key? Pick scripted — every lab still works, with real tool calls through the router."));
+    const def = detected ? String(PROVIDERS.findIndex((p) => p.id === detected) + 1) : "";
+    const answer = await ask(`\nPick 1-${PROVIDERS.length}${def ? ` [${def}]` : ""}: `, { fallback: def });
     provider = PROVIDERS[Number(answer) - 1] ?? PROVIDERS.find((p) => p.id === answer);
     if (!provider) {
       fail("No provider chosen.");
@@ -42,7 +41,6 @@ export async function chooseLlm(arg?: string): Promise<boolean> {
   const llm = resolveLlm();
   if (!llm?.apiKey) {
     fail(provider.keyFromEnv ? `${provider.keyFromEnv} is not set in this terminal.` : "No API key configured.");
-    if (provider.id === "github") hint(`Outside Codespaces, create a fine-grained token with "Models: read" and run: export GITHUB_TOKEN=…`);
     return false;
   }
   const result = await spin(`Testing ${llm.model} at ${llm.baseUrl}`, () => testLlm(llm));
@@ -101,7 +99,15 @@ export async function testLlm(llm: LlmConfig): Promise<{ ok: true; ms: number } 
     });
     const body = await res.text();
     if (!res.ok) return { ok: false, error: `HTTP ${res.status} ${body.slice(0, 200)}` };
-    if (!/tool_calls|ping/.test(body)) warn("The model answered but didn't call the tool — small models sometimes don't. Try a larger model if the agent struggles.");
+    // A 200 is not enough: retired or misconfigured endpoints can answer "OK" or an HTML page.
+    let message: { tool_calls?: unknown[] } | undefined;
+    try {
+      message = JSON.parse(body)?.choices?.[0]?.message;
+    } catch {
+      /* not JSON */
+    }
+    if (!message) return { ok: false, error: `the endpoint answered, but not with a chat completion: ${JSON.stringify(body.slice(0, 120))}` };
+    if (!message.tool_calls?.length) warn("The model answered but didn't call the tool — small models sometimes don't. Try a larger model if the agent struggles.");
     return { ok: true, ms: Date.now() - started };
   } catch (e) {
     return { ok: false, error: (e as Error).message };

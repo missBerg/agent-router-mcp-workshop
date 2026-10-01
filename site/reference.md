@@ -38,7 +38,7 @@ Everything from the labs on one page. `./lab help` prints the command list in yo
 | `./lab token <bot> --decode` | Prints the token's claims instead. |
 | `./lab token --sub <name> --scopes "…" --claim k=v` | Mints a token for your own identity. `--ttl` sets its lifetime (default `12h`). |
 | `./lab logs` | The router's access log, one line per MCP request. `-f` follows it, `--all` adds `initialize` and notifications, `--raw` prints the JSON. |
-| `./lab otel` | Opens otel-tui to browse traces (Lab 3). Press `q` to quit, `?` for help. |
+| `./lab otel` | Opens otel-tui to browse traces (Lab 3). Enter opens a trace, Esc goes back, Ctrl+C quits. |
 | `./lab connect [--as <bot>]` | Config snippets to connect your own agent. |
 | `./lab status` | What's running, which lab, which LLM. |
 | `./lab stop` | Stops the router and the MCP servers. |

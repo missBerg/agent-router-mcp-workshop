@@ -18,8 +18,7 @@ Find your symptom, try the fix. If you're stuck in a lab and short on time, `./l
 
 | Symptom | Likely cause | Fix |
 | --- | --- | --- |
-| `./lab llm github` fails its test request | GitHub Models isn't enabled for your account, or you hit the free tier's rate limit | Use `./lab llm scripted`: every tool call is still real. Or bring another provider's key. |
-| `GITHUB_TOKEN is not set in this terminal` | You chose `github` outside a Codespace | Create a fine-grained token with **Models: read**, `export GITHUB_TOKEN=…`, and run `./lab llm github` again. |
+| `./lab llm` fails its test request | Wrong key or model name, no credit on the account, or the endpoint isn't a chat-completions API | Fix the key/model and run `./lab llm` again — or use `./lab llm scripted`: every tool call is still real. |
 | `The model API refused the request: … tools is more than this provider accepts` | Lab 0, or Lab 1 before filtering, with an OpenAI-family model. OpenAI accepts at most 128 tools. | Expected: that's the problem Lab 1 solves. Finish the filter, or use `--brain scripted` for now. |
 | The agent loops, wanders, or never calls a tool | A small model, often a small local one | Use `./lab agent --brain scripted` for this run, or pick a larger model with `./lab llm`. With Ollama, try `qwen3:8b` or `llama3.1:8b`. |
 | `LLM … has no API key in this terminal` | The key came from an environment variable that isn't set in this terminal | Run `./lab llm` again in this terminal. |

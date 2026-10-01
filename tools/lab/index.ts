@@ -303,7 +303,7 @@ function otel(): boolean {
     hint(`Run ${cmd("./lab setup")}`);
     return false;
   }
-  info("otel-tui listens for OTLP on :4317 (gRPC) and :4318 (HTTP). Press q to quit, ? for help.");
+  info("otel-tui listens for OTLP on :4317 (gRPC) and :4318 (HTTP). Enter opens a trace, Esc goes back, Ctrl+C quits.");
   return spawnSync(bin, [], { stdio: "inherit" }).status === 0;
 }
 

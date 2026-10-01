@@ -13,8 +13,8 @@ export function S10Lab1Go() {
           segment="Lab 0 (5 min) → Lab 1 Aggregate & filter (17 min)"
           cues={[
             <>
-              <b>0:10</b> Everyone: <code>./lab doctor</code>. Red LLM check? <code>./lab llm</code> (GitHub Models
-              in Codespaces, or BYO key). No key at all: <code>./lab llm scripted</code>, a deterministic brain that
+              <b>0:10</b> Everyone: <code>./lab doctor</code>. Red LLM check? <code>./lab llm</code> (BYO key).
+              No key at all: <code>./lab llm scripted</code>, a deterministic brain that
               still makes real tool calls.
             </>,
             <>

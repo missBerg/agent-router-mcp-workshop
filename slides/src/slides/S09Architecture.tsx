@@ -96,7 +96,7 @@ function Diagram() {
       ))}
       <rect x={SRV_X} y="480" width="370" height="110" rx="12" className="arch-box arch-box--quiet" />
       <text x={SRV_X + 24} y="525" className="arch-llm">LLM provider</text>
-      <text x={SRV_X + 24} y="563" className="arch-small">GitHub Models · OpenAI · …</text>
+      <text x={SRV_X + 24} y="563" className="arch-small">OpenAI · Anthropic · Ollama · …</text>
     </svg>
   )
 }
