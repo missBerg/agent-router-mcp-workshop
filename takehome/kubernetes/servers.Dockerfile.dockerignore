@@ -1,0 +1,4 @@
+# Used automatically by BuildKit for servers.Dockerfile (build context = repository root).
+**/node_modules
+**/*.test.ts
+servers/README.md

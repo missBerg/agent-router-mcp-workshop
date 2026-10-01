@@ -2,15 +2,15 @@ import { Code } from '../components/Code'
 import { DeckSlide } from '../components/DeckSlide'
 import { SpeakerNotes } from '../components/SpeakerNotes'
 
-// Verified against the router: tools/list is evaluated as a hypothetical
-// tools/call per tool, so the CEL guard is has(...), not a method check.
+// Verified against the router: tools/list has no arguments and other deploy tools have no
+// `environment`, so the CEL uses optional access (.?) — zero evaluation errors.
 const YAML = `
 rules:
   # 1 · Deny first: production needs a human
   - target: {tools: [{backend: deploy, tool: deploy}]}
     cel: >-
-      has(request.mcp.params.arguments) &&
-      request.mcp.params.arguments.environment == "production"
+      request.mcp.params.?arguments.?environment
+        .orValue("") == "production"
     action: Deny
   # 2 · Then allow deploy:write
   - source: {jwt: {scopes: [deploy:write]}}
@@ -43,9 +43,10 @@ export function S15Debrief2() {
             can't match, so the tool disappears from the list and the agent can't even deploy to staging.
           </p>
           <p>
-            The <code>has(...)</code> guard matters too: the router checks <code>tools/list</code> as a hypothetical{' '}
-            <code>tools/call</code> per tool, and without the guard the CEL lookup errors with "no such key:
-            arguments". (Guarding on <code>request.mcp.method</code> does not prevent that.)
+            The <code>.?</code> matters too — it's CEL's optional field access, like <code>?.</code> in JavaScript.
+            At list time there are no arguments, and other deploy tools (like <code>get_deployment_status</code>)
+            have no <code>environment</code>; a plain <code>.environment</code> lookup errors with "no such key"
+            every time. <code>.orValue("")</code> turns "missing" into "not production".
           </p>
         </SpeakerNotes>
       }
@@ -65,7 +66,7 @@ export function S15Debrief2() {
             An allow-only-if-arguments rule can't match, so the tool is <b>hidden</b>.
           </p>
           <p className="d2-why-foot">
-            <code>has()</code> keeps list-time checks quiet.
+            <code>.?</code> keeps checks quiet when a field is missing.
           </p>
         </div>
       </div>

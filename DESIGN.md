@@ -191,8 +191,9 @@ Attendees edit **one file**: `workspace/mcproute.yaml` (and, in Lab 3, `workspac
 > **Design note (from the spike).** A rule that *allows* a tool only when a CEL condition on
 > arguments holds hides that tool from `tools/list` (there are no arguments at list time). The
 > working pattern is **deny-first**: a `Deny` rule with the argument condition, followed by a plain
-> allow rule. The router evaluates `tools/list` as a hypothetical `tools/call` per tool, so the CEL
-> is guarded with `has(request.mcp.params.arguments) && …` to avoid noisy evaluation errors. The lab teaches this pattern directly; "why?" is a Reflect question.
+> allow rule. At `tools/list` time there are no arguments, and other tools on the backend have
+> different ones, so the CEL uses optional access — `request.mcp.params.?arguments.?environment.orValue("")`
+> — to avoid "no such key" evaluation errors (a `has()` guard on `arguments` alone is not enough). The lab teaches this pattern directly; "why?" is a Reflect question.
 
 ### Lab 3 — Observe (12 min) → LO4
 
@@ -278,7 +279,7 @@ takehome/kubernetes/       kind + Helm + the same MCPRoute
 
 ## 11. Upstream papercuts found while designing (worth filing)
 
-1. CEL rules that reference `request.mcp.params.arguments` log `ERROR failed to evaluate authorization CEL … no such key: arguments` on every `tools/list` (even when guarded by `request.mcp.method == "tools/call"`; `has(request.mcp.params.arguments)` works).
+1. CEL rules that read `request.mcp.params.arguments.<field>` log `ERROR failed to evaluate authorization CEL … no such key` on every `tools/list` and on calls to other tools without that field — even with a `request.mcp.method` or `has(request.mcp.params.arguments)` guard. Optional access (`.?arguments.?environment.orValue("")`) is clean. Worth a docs example.
 2. A tool allowed only under an argument condition is hidden from `tools/list` — correct but surprising; worth a docs note recommending the deny-first pattern.
 3. A denied `tools/call` span reports `error.type = internal_error`; the front-door access-log line for the `403` has no MCP metadata (tool name is null) — identity and session are there once `claimToHeaders` is set.
 4. `aigw run` writes Envoy access logs to `~/.local/state/aigw/envoy-runs/<run-id>/stdout.log`, not the terminal — easy to miss.

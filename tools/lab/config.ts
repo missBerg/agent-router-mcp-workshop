@@ -290,8 +290,14 @@ function lintRules(
     const cel = rule.get("cel");
     const celText = typeof cel === "string" ? cel : "";
     const usesArgs = celText.includes("request.mcp.params.arguments");
-    if (usesArgs && !celText.includes("has(request.mcp.params.arguments")) {
-      warn(rule.get("cel", true) as Node, `rule #${no}: this CEL reads tool arguments, but tools/list requests have none`, "Guard it: has(request.mcp.params.arguments) && …");
+    const plainField = celText.match(/request\.mcp\.params\.arguments\.([A-Za-z_]\w*)/);
+    if (plainField && !celText.includes(`has(request.mcp.params.arguments.${plainField[1]})`)) {
+      const f = plainField[1];
+      warn(
+        rule.get("cel", true) as Node,
+        `rule #${no}: this CEL reads arguments.${f}, but tools/list requests have no arguments (and other tools may have no "${f}") — the router logs an evaluation error each time`,
+        `Use optional access: request.mcp.params.?arguments.?${f}.orValue("")`,
+      );
     }
     if (action === "Allow" && usesArgs) {
       warn(rule, `rule #${no}: an Allow rule that depends on arguments hides the tool from tools/list (no arguments at list time)`, "Prefer deny-first: a Deny rule with the argument condition, then a plain Allow rule.");

@@ -77,7 +77,7 @@ test("an Allow rule with an argument condition warns about tools/list", () => {
   );
   const w = lint(sol, catalog).filter((f) => f.level === "warning").map((f) => f.message);
   assert.ok(w.some((m) => /hides the tool from tools\/list/.test(m)), w.join("\n"));
-  assert.ok(w.some((m) => /tools\/list requests have none/.test(m)), w.join("\n"));
+  assert.ok(w.some((m) => /tools\/list requests have no arguments/.test(m)), w.join("\n"));
 });
 
 test("renderLlm: https provider with a path prefix gets TLS and a prefix", () => {

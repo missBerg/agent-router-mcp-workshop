@@ -123,7 +123,7 @@ spec:
             tools:
               - backend: deploy
                 tool: deploy
-          cel: has(request.mcp.params.arguments) && request.mcp.params.arguments.environment == "production"
+          cel: request.mcp.params.?arguments.?environment.orValue("") == "production"
           action: Deny
 
         - source:
