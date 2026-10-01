@@ -1,0 +1,54 @@
+# Lab 1 — Aggregate & filter
+#
+# One MCPRoute puts all five Lakeshore Labs MCP servers behind ONE endpoint:
+#   http://localhost:1975/mcp
+# The router merges their tool lists and prefixes each tool with its backend
+# name (issues__get_issue, docs__search_docs, …) so names never collide.
+#
+# After every edit:  ./lab run   (restarts the router with this file)
+# Check your work:   ./lab check 1
+apiVersion: aigateway.envoyproxy.io/v1beta1
+kind: MCPRoute
+metadata:
+  name: ship-it
+  namespace: default
+spec:
+  parentRefs:
+    - name: aigw-run
+      kind: Gateway
+      group: gateway.networking.k8s.io
+  path: /mcp
+  backendRefs:
+    - name: issues
+      kind: Backend
+      group: gateway.envoyproxy.io
+      path: /mcp
+      # ✏️ Modify, step 1 — a worked example. Uncomment these two lines:
+      # toolSelector:
+      #   include: [get_issue, add_comment]
+
+    - name: ci
+      kind: Backend
+      group: gateway.envoyproxy.io
+      path: /mcp
+      # ✏️ Modify, step 1 — uncomment these two lines too:
+      # toolSelector:
+      #   include: [list_pipeline_runs, get_job_logs]
+
+    - name: docs
+      kind: Backend
+      group: gateway.envoyproxy.io
+      path: /mcp
+      # ✏️ Modify, step 2 — your turn: the agent needs `search_docs` from docs.
+
+    - name: deploy
+      kind: Backend
+      group: gateway.envoyproxy.io
+      path: /mcp
+      # ✏️ Modify, step 2 — your turn: the agent needs `deploy` and `get_deployment_status`.
+
+    - name: chat
+      kind: Backend
+      group: gateway.envoyproxy.io
+      path: /mcp
+      # ✏️ Modify, step 2 — your turn: the agent needs `post_message`.

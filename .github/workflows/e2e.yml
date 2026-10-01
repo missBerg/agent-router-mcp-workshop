@@ -1,0 +1,38 @@
+name: labs end-to-end
+
+# Runs every lab exactly as an attendee would — start config, solution, the
+# sample agent (scripted brain, real tool calls through the router), ./lab check —
+# so the workshop is known to work before anyone walks into the room.
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  labs:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: npx tsc --noEmit
+      - name: Unit tests
+        run: npm test
+      - name: Cache aigw + Envoy
+        uses: actions/cache@v4
+        with:
+          path: |
+            .lab/bin
+            ~/.local/share/aigw
+          key: aigw-v1.1.0-envoy-1.38.1-${{ runner.os }}
+      - run: ./lab setup
+      - name: Labs 1–3 with the scripted brain
+        run: ./tools/e2e.sh
+      - name: Router logs on failure
+        if: failure()
+        run: tail -n 200 .lab/router.log .lab/servers.log || true

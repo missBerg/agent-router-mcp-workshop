@@ -12,7 +12,9 @@
     "servers": "node servers/index.ts",
     "agent": "node agent/index.ts",
     "lab": "node tools/lab/index.ts",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "node --test \"servers/**/*.test.ts\" \"agent/**/*.test.ts\" \"tools/**/*.test.ts\"",
+    "e2e": "./tools/e2e.sh"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.31.0",
@@ -22,6 +24,7 @@
     "@opentelemetry/sdk-trace-base": "^2.11.0",
     "@opentelemetry/semantic-conventions": "^1.43.0",
     "jose": "^6.2.12",
+    "yaml": "^2.9.1",
     "zod": "^4.6.5"
   },
   "devDependencies": {

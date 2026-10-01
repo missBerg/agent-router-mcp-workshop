@@ -1,0 +1,79 @@
+# Routes the agent's LLM traffic through the router (http://localhost:1975/v1).
+# Rendered by `./lab run` from your `./lab llm` choice. The API key is never written
+# to disk: ${LAB_LLM_API_KEY} is substituted by aigw from the environment at startup,
+# and only the router holds it — the agent talks to the router without a key.
+apiVersion: aigateway.envoyproxy.io/v1beta1
+kind: AIGatewayRoute
+metadata:
+  name: llm
+  namespace: default
+spec:
+  parentRefs:
+    - name: aigw-run
+      kind: Gateway
+      group: gateway.networking.k8s.io
+  rules:
+    - matches:
+        - headers:
+            - type: RegularExpression
+              name: x-ai-eg-model
+              value: .*
+      backendRefs:
+        - name: llm
+      timeouts:
+        request: 120s
+  llmRequestCosts:
+    - metadataKey: llm_input_token
+      type: InputToken
+    - metadataKey: llm_output_token
+      type: OutputToken
+---
+apiVersion: aigateway.envoyproxy.io/v1beta1
+kind: AIServiceBackend
+metadata:
+  name: llm
+  namespace: default
+spec:
+  timeouts:
+    request: 3m
+  schema:
+    name: OpenAI
+    prefix: "{{PREFIX}}"
+  backendRef:
+    name: llm
+    kind: Backend
+    group: gateway.envoyproxy.io
+---
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: Backend
+metadata:
+  name: llm
+  namespace: default
+spec:
+  endpoints:
+    - {{ENDPOINT}}
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: llm-apikey
+  namespace: default
+type: Opaque
+stringData:
+  apiKey: ${LAB_LLM_API_KEY}
+---
+apiVersion: aigateway.envoyproxy.io/v1beta1
+kind: BackendSecurityPolicy
+metadata:
+  name: llm-apikey
+  namespace: default
+spec:
+  targetRefs:
+    - group: aigateway.envoyproxy.io
+      kind: AIServiceBackend
+      name: llm
+  type: APIKey
+  apiKey:
+    secretRef:
+      name: llm-apikey
+{{TLS}}

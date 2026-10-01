@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+# The workshop helper. Run: ./lab help
+set -euo pipefail
+cd "$(dirname "$0")"
+
+if ! command -v node >/dev/null 2>&1; then
+  echo "✗ Node.js is required (22.18+ or 24 LTS): https://nodejs.org — or use the GitHub Codespace." >&2
+  exit 1
+fi
+if ! node -e 'const [a,b]=process.versions.node.split(".").map(Number);process.exit(a>22||(a===22&&b>=18)?0:1)'; then
+  echo "✗ Node.js $(node -v) is too old — the labs need 22.18+ (it runs TypeScript directly). Or use the Codespace." >&2
+  exit 1
+fi
+if [ ! -d node_modules/@modelcontextprotocol/sdk ]; then
+  echo "› Installing npm dependencies (first run only)…"
+  npm ci --no-audit --no-fund --loglevel=error
+fi
+exec node tools/lab/index.ts "$@"

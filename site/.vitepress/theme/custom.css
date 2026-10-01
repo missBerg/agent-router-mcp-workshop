@@ -1,0 +1,164 @@
+/* Agent Router visual identity (tokens from theagentrouter.ai: Marquee orange,
+   ink, cream, verdigris; Archivo / Inter / JetBrains Mono) mapped onto VitePress. */
+:root {
+  --ar-marquee-050: #fff3ec;
+  --ar-marquee-300: #ffa066;
+  --ar-marquee-400: #ff7a33;
+  --ar-marquee-500: #ff5500;
+  --ar-marquee-600: #e04400;
+  --ar-marquee-700: #b83700;
+  --ar-verdigris-400: #31c4aa;
+  --ar-verdigris-500: #1a937f;
+  --ar-verdigris-700: #116355;
+  --ar-raspberry-400: #e1478a;
+  --ar-raspberry-500: #dc186d;
+  --ar-gilt-500: #d9a441;
+  --ar-gilt-750: #8a6318;
+  --ar-spotlight-300: #a3acd4;
+  --ar-spotlight-700: #454f7d;
+  --ar-velvet-400: #8a6a7e;
+  --ar-velvet-600: #55394c;
+  --ar-ink-900: #12100e;
+  --ar-ink-800: #241f1b;
+  --ar-ink-600: #4a423c;
+  --ar-cream: #fbf8f5;
+  --ar-cream-2: #f4eee7;
+  --ar-cream-3: #eae1d7;
+
+  --vp-font-family-base: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --vp-font-family-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  --vp-c-brand-1: var(--ar-marquee-700);
+  --vp-c-brand-2: var(--ar-marquee-600);
+  --vp-c-brand-3: var(--ar-marquee-500);
+  --vp-c-brand-soft: rgba(255, 85, 0, 0.12);
+  --vp-c-bg: var(--ar-cream);
+  --vp-c-bg-alt: var(--ar-cream-2);
+  --vp-c-bg-soft: var(--ar-cream-2);
+  --vp-c-divider: var(--ar-cream-3);
+  --vp-c-text-1: var(--ar-ink-900);
+  --vp-c-text-2: var(--ar-ink-600);
+  --vp-button-brand-bg: var(--ar-marquee-700);
+  --vp-button-brand-hover-bg: var(--ar-marquee-600);
+  --vp-home-hero-name-color: var(--ar-marquee-700);
+
+  --step-goal: var(--ar-marquee-700);
+  --step-recall: var(--ar-velvet-600);
+  --step-predict: var(--ar-spotlight-700);
+  --step-run: var(--ar-verdigris-700);
+  --step-investigate: var(--ar-gilt-750);
+  --step-modify: var(--ar-marquee-700);
+  --step-checkpoint: var(--ar-verdigris-700);
+  --step-make: var(--ar-raspberry-500);
+  --step-explore: var(--ar-spotlight-700);
+  --step-reflect: var(--ar-velvet-600);
+}
+
+.dark {
+  --vp-c-brand-1: var(--ar-marquee-300);
+  --vp-c-brand-2: var(--ar-marquee-400);
+  --vp-c-brand-3: var(--ar-marquee-500);
+  --vp-c-bg: var(--ar-ink-900);
+  --vp-c-bg-alt: #0b0a09;
+  --vp-c-bg-soft: var(--ar-ink-800);
+  --vp-c-divider: #3a332d;
+  --vp-c-text-1: #f4eee7;
+  --vp-c-text-2: #c9bfb5;
+  --vp-button-brand-bg: var(--ar-marquee-500);
+  --vp-button-brand-text: var(--ar-ink-900);
+  --vp-button-brand-hover-bg: var(--ar-marquee-400);
+  --vp-home-hero-name-color: var(--ar-marquee-400);
+
+  --step-goal: var(--ar-marquee-400);
+  --step-recall: var(--ar-velvet-400);
+  --step-predict: var(--ar-spotlight-300);
+  --step-run: var(--ar-verdigris-400);
+  --step-investigate: var(--ar-gilt-500);
+  --step-modify: var(--ar-marquee-400);
+  --step-checkpoint: var(--ar-verdigris-400);
+  --step-make: var(--ar-raspberry-400);
+  --step-explore: var(--ar-spotlight-300);
+  --step-reflect: var(--ar-velvet-400);
+}
+
+.vp-doc h1,
+.vp-doc h2,
+.vp-doc h3,
+.VPHero .name,
+.VPHero .text {
+  font-family: "Archivo", var(--vp-font-family-base);
+  letter-spacing: -0.01em;
+}
+
+/* ---- learning-step blocks ---- */
+.vp-doc .step {
+  --c: var(--vp-c-brand-1);
+  margin: 20px 0;
+  padding: 12px 18px 4px;
+  border-left: 4px solid var(--c);
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--c) 7%, var(--vp-c-bg));
+}
+.vp-doc .step-title {
+  margin: 0 0 6px;
+  font-family: "Archivo", var(--vp-font-family-base);
+  font-weight: 700;
+  font-size: 0.95rem;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--c);
+}
+.vp-doc .step-icon::before {
+  display: inline-block;
+  width: 1.4em;
+}
+.vp-doc .step > :last-child {
+  margin-bottom: 12px;
+}
+.vp-doc .step-goal { --c: var(--step-goal); }
+.vp-doc .step-goal .step-icon::before { content: "◎"; }
+.vp-doc .step-recall { --c: var(--step-recall); }
+.vp-doc .step-recall .step-icon::before { content: "↺"; }
+.vp-doc .step-predict { --c: var(--step-predict); }
+.vp-doc .step-predict .step-icon::before { content: "?"; }
+.vp-doc .step-run { --c: var(--step-run); }
+.vp-doc .step-run .step-icon::before { content: "▶"; }
+.vp-doc .step-investigate { --c: var(--step-investigate); }
+.vp-doc .step-investigate .step-icon::before { content: "⌕"; }
+.vp-doc .step-modify { --c: var(--step-modify); }
+.vp-doc .step-modify .step-icon::before { content: "✎"; }
+.vp-doc .step-checkpoint { --c: var(--step-checkpoint); border-left-width: 6px; }
+.vp-doc .step-checkpoint .step-icon::before { content: "✓"; }
+.vp-doc .step-make { --c: var(--step-make); }
+.vp-doc .step-make .step-icon::before { content: "✦"; }
+.vp-doc .step-explore { --c: var(--step-explore); }
+.vp-doc .step-explore .step-icon::before { content: "→"; }
+.vp-doc .step-reflect { --c: var(--step-reflect); }
+.vp-doc .step-reflect .step-icon::before { content: "◇"; }
+
+/* Lab meta line: "Core 17 min · Stretch · Explore" */
+.vp-doc .lab-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: -4px 0 20px;
+}
+.vp-doc .lab-meta span {
+  padding: 2px 10px;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  background: var(--vp-c-bg-soft);
+  border: 1px solid var(--vp-c-divider);
+}
+.vp-doc .lab-meta .core {
+  background: var(--vp-c-brand-soft);
+  border-color: transparent;
+  color: var(--vp-c-brand-1);
+}
+
+/* Terminal transcripts */
+.vp-doc div[class*="language-console"] code,
+.vp-doc div[class*="language-text"] code {
+  font-size: 0.82rem;
+}
