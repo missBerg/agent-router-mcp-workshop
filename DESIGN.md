@@ -219,7 +219,7 @@ v1.1.0). Shows "what works on your laptop deploys unchanged".
 
 | Path | Who | How |
 | --- | --- | --- |
-| **Codespaces** (recommended in-session) | Everyone, any OS | "Open in Codespaces" button / QR. Devcontainer uses a pre-built image (GHCR) with `aigw`, Envoy, Node, otel-tui and `node_modules` baked in. LLM: GitHub Models via the Codespace's `GITHUB_TOKEN` (to verify), or BYO key |
+| **Codespaces** (recommended in-session) | Everyone, any OS | "Open in Codespaces" button / QR. Devcontainer uses a pre-built image (GHCR) with `aigw`, Envoy and otel-tui baked in (`npm ci` runs on create). LLM: GitHub Models via the Codespace's built-in `GITHUB_TOKEN` (free tier, per-attendee rate limits — confirm on the day with `./lab llm github`), or BYO key |
 | **Local** | macOS arm64 / Linux, decent bandwidth | `./lab setup` downloads `aigw` v1.1.0 + Envoy + `npm ci`. Warned as ~330 MB |
 
 ## 8. Repository layout
