@@ -94,3 +94,19 @@ test("renderLlm: local Ollama uses an IP endpoint, no TLS, default /v1 prefix om
   assert.doesNotMatch(y, /prefix:/);
   assert.doesNotMatch(y, /BackendTLSPolicy/);
 });
+
+test("includeRegex matches anywhere in the name, like the router, and nudges toward anchoring", () => {
+  const y = read(1, "solution.yaml").replace("include: [search_docs]", "includeRegex: [search]");
+  const w = lint(y, catalog).filter((f) => f.level === "warning");
+  assert.equal(errors(y).length, 0);
+  assert.ok(w.some((f) => /matches 2 tools/.test(f.message) && /anchor/.test(f.fix ?? "")), JSON.stringify(w));
+});
+
+test("an Allow rule using optional argument access still warns about tools/list", () => {
+  const sol = read(2, "start.yaml").replace(
+    "              scopes: [deploy:write]\n          target:",
+    "              scopes: [deploy:write]\n          cel: request.mcp.params.?arguments.?environment.orValue(\"\") != \"production\"\n          target:",
+  );
+  const w = lint(sol, catalog).filter((f) => f.level === "warning").map((f) => f.message);
+  assert.ok(w.some((m) => /hides the tool from tools\/list/.test(m)), w.join("\n"));
+});

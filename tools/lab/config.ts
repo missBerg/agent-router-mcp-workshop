@@ -176,9 +176,12 @@ export function lint(text: string, catalog: Record<string, string[]>): Finding[]
         matched = new Set();
         node.items.forEach((item, idx) => {
           try {
-            const re = new RegExp(`^(?:${values[idx]})$`);
+            // Like the router (Go regexp.MatchString): the pattern may match anywhere in the name.
+            const re = new RegExp(values[idx]);
             const hits = tools.filter((t) => re.test(t));
             if (!hits.length) warn(item as Node, `${key} "${values[idx]}" matches no tool on "${name}"`);
+            else if (!/^\^.*\$$/.test(values[idx]) && hits.length > 1 && key === "includeRegex")
+              warn(item as Node, `${key} "${values[idx]}" matches ${hits.length} tools on "${name}" (${hits.slice(0, 4).join(", ")}${hits.length > 4 ? ", …" : ""})`, "Patterns match anywhere in the name — anchor with ^…$ to match whole names.");
             hits.forEach((h) => matched.add(h));
           } catch (e) {
             err(item as Node, `invalid regular expression "${values[idx]}": ${(e as Error).message}`);
@@ -289,7 +292,7 @@ function lintRules(
 
     const cel = rule.get("cel");
     const celText = typeof cel === "string" ? cel : "";
-    const usesArgs = celText.includes("request.mcp.params.arguments");
+    const usesArgs = /request\.mcp\.params\.\??arguments/.test(celText);
     const plainField = celText.match(/request\.mcp\.params\.arguments\.([A-Za-z_]\w*)/);
     if (plainField && !celText.includes(`has(request.mcp.params.arguments.${plainField[1]})`)) {
       const f = plainField[1];

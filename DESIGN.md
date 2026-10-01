@@ -284,3 +284,5 @@ takehome/kubernetes/       kind + Helm + the same MCPRoute
 3. A denied `tools/call` span reports `error.type = internal_error`; the front-door access-log line for the `403` has no MCP metadata (tool name is null) — identity and session are there once `claimToHeaders` is set.
 4. `aigw run` writes Envoy access logs to `~/.local/state/aigw/envoy-runs/<run-id>/stdout.log`, not the terminal — easy to miss.
 5. `aigw` release binaries are ~280 MB and there are no `darwin-amd64` / Windows builds.
+6. `mcp_initialization_duration_token_*`: the MCP initialization-duration histogram is registered with `metric.WithUnit("token")` (`internal/metrics/mcp_metrics.go`), so a duration metric carries a `_token` unit suffix.
+7. `toolSelector.includeRegex` matches anywhere in the tool name (Go `regexp.MatchString`), unlike the anchored feel of `include`; worth stating in the API docs.

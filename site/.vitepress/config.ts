@@ -18,8 +18,16 @@ const STEPS: Record<string, string> = {
   checkpoint: "Checkpoint",
   make: "Make · Stretch",
   explore: "Explore · take-home",
+  stuck: "Stuck?",
   reflect: "Reflect",
 };
+
+const slugify = (s: string) =>
+  s
+    .toLowerCase()
+    .normalize("NFKD")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
 
 export default defineConfig({
   title: "Agent Router MCP Workshop",
@@ -79,14 +87,39 @@ export default defineConfig({
   },
   markdown: {
     config(md) {
+      // GitHub-style task lists ("- [ ] item") render as checkboxes, like they do on GitHub.
+      md.core.ruler.after("inline", "task-lists", (state) => {
+        state.tokens.forEach((token, i) => {
+          const first = token.children?.[0];
+          if (token.type !== "inline" || state.tokens[i - 2]?.type !== "list_item_open" || first?.type !== "text") return;
+          const m = /^\[([ xX])\] /.exec(first.content);
+          if (!m) return;
+          first.content = first.content.slice(m[0].length);
+          const box = new state.Token("html_inline", "", 0);
+          box.content = `<input type="checkbox" class="task-list-item-checkbox" disabled${m[1] === " " ? "" : " checked"} aria-hidden="true"> `;
+          token.children!.unshift(box);
+        });
+      });
+
+      // Each step title is a real <h2> with an anchor, so the page outline ("On this page")
+      // and local search show the PRIMM structure: Predict, Run, Investigate, Modify, …
       for (const [name, label] of Object.entries(STEPS)) {
         md.use(container, name, {
-          render(tokens: { nesting: number; info: string }[], idx: number) {
+          render(tokens: { nesting: number; info: string }[], idx: number, _opts: unknown, env: Record<string, any>) {
             const token = tokens[idx];
             if (token.nesting !== 1) return "</div>\n";
             const extra = token.info.trim().slice(name.length).trim();
-            const heading = extra ? `${label} — ${md.utils.escapeHtml(extra)}` : label;
-            return `<div class="step step-${name}"><p class="step-title"><span class="step-icon" aria-hidden="true"></span>${heading}</p>\n`;
+            const text = extra ? `${label} — ${extra}` : label;
+            const ids: Record<string, number> = (env.__stepIds ??= {});
+            const base = slugify(extra ? `${name} ${extra}` : name);
+            ids[base] = (ids[base] ?? 0) + 1;
+            const id = ids[base] > 1 ? `${base}-${ids[base]}` : base;
+            const safe = md.utils.escapeHtml(text);
+            return (
+              `<div class="step step-${name}">` +
+              `<h2 class="step-title" id="${id}" tabindex="-1"><span class="step-icon" aria-hidden="true"></span>${safe} ` +
+              `<a class="header-anchor" href="#${id}" aria-label="Permalink to &quot;${safe}&quot;">&#8203;</a></h2>\n`
+            );
           },
         });
       }

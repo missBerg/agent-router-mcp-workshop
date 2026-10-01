@@ -180,7 +180,7 @@ export async function checkLab2(): Promise<Result> {
 
 function finish2(passed: boolean): Result {
   verdict(2, passed, [
-    `Stretch: only let an identity deploy its own team's service (claim "team"); mint one with ${cmd("./lab token --sub payments-bot --scopes deploy:write --claim team=payments")}`,
+    `Stretch: only let an identity deploy its own team's service (claim "team"); mint one with ${cmd('./lab token --sub payments-bot --scopes "issues:read issues:write ci:read docs:read chat:write deploy:write" --claim team=payments')}`,
     `Ready? ${cmd("./lab start 3")} for Lab 3 — Observe`,
   ]);
   return { passed };
@@ -246,7 +246,7 @@ export async function checkLab3(opts: { quiz: boolean }): Promise<Result> {
     if (/deploy/.test(q2)) ok("Right — deploy__deploy. The log line says *that* it was denied; the trace says *which tool*");
     else (passed = false), fail("Not quite. In otel-tui, find the span with an error status in that agent's trace");
     const q3 = (await ask("  3. What does that span's error status say? ")).toLowerCase();
-    if (/author/.test(q3)) ok('Right — "authorization failed", on the span for the denied tools/call');
+    if (/author|denied|403|forbidden/.test(q3)) ok('Right — the router\'s span says "authorization failed" (the agent\'s own span says "denied by policy (HTTP 403)")');
     else (passed = false), fail("Not quite. Select the red span in otel-tui and read its status / exception event");
   } else if (passed && opts.quiz) {
     detail(c.dim("(Investigation questions skipped: not an interactive terminal.)"));
