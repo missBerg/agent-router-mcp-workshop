@@ -1,3 +1,4 @@
+import { WORKSHOP_LLM_KEY } from '../config'
 import { DeckSlide } from '../components/DeckSlide'
 import { LabGo } from '../components/LabGo'
 import { SpeakerNotes } from '../components/SpeakerNotes'
@@ -71,10 +72,16 @@ export function S10Lab1Go() {
         }
         commands={[
           { cmd: './lab doctor', note: 'all green?' },
-          { cmd: './lab start 1 && ./lab run', note: 'router in front of 5 servers' },
+          { cmd: './lab start 1', note: 'router in front of 5 servers' },
           { cmd: './lab agent', note: 'one URL. Now cut to 8 tools.' },
         ]}
         checkpoint="./lab check 1"
+        extra={
+          <div className="labgo-key">
+            No LLM key? <code className="ic">./lab llm workshop</code> and paste{' '}
+            {WORKSHOP_LLM_KEY ? <code className="key">{WORKSHOP_LLM_KEY}</code> : <b>the key we hand out</b>}
+          </div>
+        }
       />
     </DeckSlide>
   )

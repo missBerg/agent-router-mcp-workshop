@@ -493,3 +493,18 @@ body,
 }
 .notes b { color: #fff; }
 .notes em { color: #ffa066; font-style: normal; }
+
+/* Workshop LLM key strip on the Lab 0/1 go slide */
+.labgo-key {
+  margin-top: 28px;
+  padding: 14px 22px;
+  border-left: 6px solid var(--ar-marquee-500, #ff5500);
+  background: rgba(255, 85, 0, 0.12);
+  font: 500 32px/1.35 var(--ar-font-ui);
+  color: #f3efeb;
+}
+.labgo-key .key {
+  font: 600 34px/1.3 var(--ar-font-mono, monospace);
+  color: #ffa066;
+  word-break: break-all;
+}

@@ -13,10 +13,12 @@ type Props = {
   /** Optional prompt shown above the commands (Predict / the investigation question). */
   question?: ReactNode
   checkpoint: string
+  /** Optional strip under the checkpoint line (e.g. the workshop LLM key). */
+  extra?: ReactNode
 }
 
 /** Shared layout for the dark "your turn" slides. */
-export function LabGo({ lab, kicker, title, until, minutes, commands, question, checkpoint }: Props) {
+export function LabGo({ lab, kicker, title, until, minutes, commands, question, checkpoint, extra }: Props) {
   const url = labPageUrl(lab)
   return (
     <div className="labgo">
@@ -33,6 +35,7 @@ export function LabGo({ lab, kicker, title, until, minutes, commands, question, 
             Stuck? <code className="ic">./lab solution {lab}</code>
           </span>
         </div>
+        {extra}
       </div>
       <aside className="labgo-side">
         <div className="until">

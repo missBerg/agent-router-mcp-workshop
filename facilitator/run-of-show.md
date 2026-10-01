@@ -8,9 +8,27 @@ The slides carry presenter notes that match this page. Clock times are from the 
 - [ ] Run `./tools/e2e.sh` on the published repo (CI does this on every push — check it is green).
 - [ ] Open a fresh Codespace from the README button **on the conference wifi** the day before; note how long it takes.
 - [ ] Confirm the GHCR devcontainer image is public (Packages → `devcontainer` → Package settings → visibility).
-- [ ] Do one full run as an attendee with an LLM (BYO key in a Codespace) and once with `./lab llm scripted`.
+- [ ] Do one full run as an attendee with the workshop key in a Codespace (`./lab llm workshop`) and once with `./lab llm scripted`.
 - [ ] Shorten the lab-site URL and the Codespaces URL (QR codes are on slides 2 and the last slide; URLs live in `slides/src/config.ts`).
 - [ ] Have a personal hotspot as backup for the presenter laptop.
+
+## Workshop LLM keys
+
+Attendees without their own key run `./lab llm workshop` and paste a key you hand out.
+
+1. **Endpoint and model** live in `labs/workshop-llm.env` (committed — no secrets). It defaults to
+   Tetrate Agent Router Service (`https://api.router.tetrate.ai/v1`, `gpt-4o-mini`). Confirm the
+   model name works for your account and change it if needed.
+2. **Create a key just for this session** with a hard spend/rate limit. Assume it will be photographed.
+   One key for the room is simplest; with 50+ people, check the provider's per-key rate limit and
+   consider 3–5 keys (one per table).
+3. **Put it on the slide, not in git:** on the presenting laptop create `slides/.env.local` with
+   `VITE_WORKSHOP_LLM_KEY=…` and present from `npm run dev` (or `npm run build && npm run preview`).
+   The public Pages deck shows "the key we hand out" instead.
+4. **Rehearse:** `./lab llm workshop`, paste the key, then `./lab start 1 && ./lab solution 1 && ./lab agent`
+   — the agent should finish the task with the LLM brain.
+5. **Revoke the key(s) right after the session.** People finishing at home use their own key or
+   `./lab llm scripted`.
 
 ## In the room, before doors open
 
@@ -26,7 +44,7 @@ The slides carry presenter notes that match this page. Clock times are from the 
 | 0:00 | 2 | 1–2 | Welcome, **open your Codespace now** | "Scan the QR, click *Create codespace*, and let it boot while I talk. No Codespace? `./lab setup` on macOS arm64/Linux." |
 | 0:02 | 5 | 3–6 | Hook + live demo | `./lab agent --direct --list`, then `./lab agent --direct`. Point at **200 tools · ≈N k tokens**. If the model API rejects 200 tools, celebrate it: "the API refused before the agent even started — that's the problem." |
 | 0:07 | 3 | 7–9 | Objectives, how labs work, Agent Router in one picture | Stress: *go at your own pace*, `./lab check N` gives feedback, `./lab solution N` catches you up any time. |
-| 0:10 | 5 | 10 | **Lab 0** — set up & meet the agent | Walk the room. Most common blocker: LLM choice → "no key? `./lab llm scripted` — every lab still works". |
+| 0:10 | 5 | 10 | **Lab 0** — set up & meet the agent | Walk the room. Most common blocker: LLM choice → "no key? `./lab llm workshop` and paste the key on the slide (or `./lab llm scripted`)". |
 | 0:15 | 17 | 10 | **Lab 1** — Aggregate & filter | At 0:22 do a quick show of hands: "who has the router running?" At 0:28: "two minutes to the checkpoint". |
 | 0:32 | 4 | 11–12 | Debrief 1 → concept: identity & authorization | Ask one person what their tool count went from/to. **Sync point:** "Not at the checkpoint? `./lab solution 1` and come with us." |
 | 0:36 | 18 | 13 | **Lab 2** — Authorize | Watch for the classic: the deny rule placed *after* the allow rule — `./lab run` flags it. |

@@ -49,12 +49,13 @@ Pick a number from the list. The helper asks for a model (press Enter for the de
 
 | Provider | When to pick it | Default model |
 | --- | --- | --- |
+| `workshop` | **In the room.** Paste the key shown on the slide. It's a short-lived key for this session only. | set by the facilitator |
 | `openai` | You have an OpenAI API key (or `OPENAI_API_KEY` is already set). | `gpt-4.1-mini` |
 | `anthropic` | You have an Anthropic API key, or `ANTHROPIC_API_KEY` is set (OpenAI-compatible endpoint). | `claude-haiku-4-5` |
 | `gemini` | You have a Google AI Studio key, or `GEMINI_API_KEY` is set (OpenAI-compatible endpoint). | `gemini-2.5-flash` |
 | `ollama` | Local machine, no key. Small local models often don't call tools reliably: type `qwen3:8b` or `llama3.1:8b` at the model prompt. | `qwen3:4b` |
 | `custom` | Any other OpenAI-compatible endpoint (vLLM, LiteLLM, Groq, …). | you choose |
-| `scripted` | **No key? Pick this.** No LLM at all: a fixed plan, but **every tool call is real** and goes through the router like any other. Every lab and checkpoint works with it. | — |
+| `scripted` | **No key, or finishing at home?** No LLM at all: a fixed plan, but **every tool call is real** and goes through the router like any other. Every lab and checkpoint works with it. | — |
 
 You can also name the provider directly, for example `./lab llm anthropic` or `./lab llm scripted`.
 

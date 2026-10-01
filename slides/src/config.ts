@@ -22,6 +22,13 @@ export const REPO_URL = 'https://github.com/missBerg/agent-router-mcp-workshop'
 export const FEEDBACK_URL = ''
 
 /**
+ * The workshop LLM key attendees paste into `./lab llm workshop` (Lab 0/1 slide).
+ * Never commit it: put VITE_WORKSHOP_LLM_KEY=… in slides/.env.local (git-ignored) on the
+ * presenting laptop. The public Pages build has no key and shows a placeholder instead.
+ */
+export const WORKSHOP_LLM_KEY: string = import.meta.env.VITE_WORKSHOP_LLM_KEY ?? ''
+
+/**
  * Lab pages on the lab site, relative to LAB_SITE_URL.
  * Keep in sync with the site's routes (site/).
  */

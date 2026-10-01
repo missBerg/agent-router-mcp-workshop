@@ -59,5 +59,5 @@ runs through one helper — `./lab help` lists its commands.
 ## Credits
 
 Built by Erica Hughberg ([Tetrate](https://tetrate.io)) for MCP Dev Summit Toronto 2026.
-Agent Router is an open-source project of the Agentic AI Foundation; it was formerly known as
-Envoy AI Gateway.
+Agent Router is an open-source project of the [Agentic AI Foundation](https://aaif.io); it was
+formerly known as Envoy AI Gateway.

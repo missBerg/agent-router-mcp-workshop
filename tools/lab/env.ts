@@ -2,7 +2,8 @@
 // Every preset is an OpenAI-compatible Chat Completions endpoint, so the agent
 // and the router treat them all the same way.
 import fs from "node:fs";
-import { ENV_FILE } from "./paths.ts";
+import path from "node:path";
+import { ENV_FILE, LABS } from "./paths.ts";
 
 export function parseEnvFile(file: string): Record<string, string> {
   if (!fs.existsSync(file)) return {};
@@ -32,7 +33,7 @@ export function writeEnvFile(values: Record<string, string>) {
   fs.writeFileSync(ENV_FILE, lines.join("\n"), { mode: 0o600 });
 }
 
-export type ProviderId = "openai" | "anthropic" | "gemini" | "ollama" | "custom" | "scripted";
+export type ProviderId = "workshop" | "openai" | "anthropic" | "gemini" | "ollama" | "custom" | "scripted";
 
 export interface Provider {
   id: ProviderId;
@@ -45,7 +46,21 @@ export interface Provider {
   noKey?: boolean;
 }
 
+/**
+ * The endpoint the facilitator hands out keys for (labs/workshop-llm.env). Attendees in the
+ * room pick it and paste the key from the slide. Environment variables override the file.
+ */
+function workshopProvider(): Provider[] {
+  const file = parseEnvFile(path.join(LABS, "workshop-llm.env"));
+  const get = (k: string) => process.env[k] || file[k] || "";
+  const baseUrl = get("WORKSHOP_LLM_BASE_URL");
+  if (!baseUrl) return [];
+  const label = get("WORKSHOP_LLM_LABEL") || baseUrl;
+  return [{ id: "workshop", label: `In the room — ${label}, with the key on the slide`, baseUrl, model: get("WORKSHOP_LLM_MODEL"), keyHint: "the key on the slide" }];
+}
+
 export const PROVIDERS: Provider[] = [
+  ...workshopProvider(),
   { id: "openai", label: "OpenAI", baseUrl: "https://api.openai.com/v1", model: "gpt-4.1-mini", keyHint: "sk-…", keyFromEnv: "OPENAI_API_KEY" },
   {
     id: "anthropic",

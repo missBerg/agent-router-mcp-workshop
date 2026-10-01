@@ -17,7 +17,8 @@ export async function chooseLlm(arg?: string): Promise<boolean> {
       console.log(`  ${c.bold(String(i + 1))}. ${c.cyan(p.id.padEnd(9))} ${p.label}${star}`);
     });
     console.log(c.dim("\n  No API key? Pick scripted — every lab still works, with real tool calls through the router."));
-    const def = detected ? String(PROVIDERS.findIndex((p) => p.id === detected) + 1) : "";
+    const preferred = detected ?? PROVIDERS.find((p) => p.id === "workshop")?.id;
+    const def = preferred ? String(PROVIDERS.findIndex((p) => p.id === preferred) + 1) : "";
     const answer = await ask(`\nPick 1-${PROVIDERS.length}${def ? ` [${def}]` : ""}: `, { fallback: def });
     provider = PROVIDERS[Number(answer) - 1] ?? PROVIDERS.find((p) => p.id === answer);
     if (!provider) {
@@ -45,7 +46,7 @@ export async function chooseLlm(arg?: string): Promise<boolean> {
   }
   const result = await spin(`Testing ${llm.model} at ${llm.baseUrl}`, () => testLlm(llm));
   if (result.ok) {
-    ok(`The model answered in ${result.ms} ms and supports tool calling.`);
+    ok(`The model answered in ${result.ms} ms${result.toolCalls ? " and called the test tool — tool calling works." : "."}`);
     hint(`Changed your mind? ${cmd("./lab llm")} again — or ${cmd("./lab llm scripted")} to run without an LLM.`);
     return true;
   }
@@ -83,7 +84,7 @@ async function collect(p: Provider): Promise<Record<string, string> | null> {
 }
 
 /** One tiny tool-calling request, straight to the provider (the router may not be running yet). */
-export async function testLlm(llm: LlmConfig): Promise<{ ok: true; ms: number } | { ok: false; error: string }> {
+export async function testLlm(llm: LlmConfig): Promise<{ ok: true; ms: number; toolCalls: boolean } | { ok: false; error: string }> {
   const started = Date.now();
   try {
     const res = await fetch(`${llm.baseUrl.replace(/\/$/, "")}/chat/completions`, {
@@ -107,8 +108,9 @@ export async function testLlm(llm: LlmConfig): Promise<{ ok: true; ms: number } 
       /* not JSON */
     }
     if (!message) return { ok: false, error: `the endpoint answered, but not with a chat completion: ${JSON.stringify(body.slice(0, 120))}` };
-    if (!message.tool_calls?.length) warn("The model answered but didn't call the tool — small models sometimes don't. Try a larger model if the agent struggles.");
-    return { ok: true, ms: Date.now() - started };
+    const toolCalls = !!message.tool_calls?.length;
+    if (!toolCalls) warn("The model answered but didn't call the test tool — small models often don't. Try a larger model if the agent struggles.");
+    return { ok: true, ms: Date.now() - started, toolCalls };
   } catch (e) {
     return { ok: false, error: (e as Error).message };
   }

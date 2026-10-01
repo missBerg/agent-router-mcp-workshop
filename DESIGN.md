@@ -220,7 +220,7 @@ v1.1.0). Shows "what works on your laptop deploys unchanged".
 
 | Path | Who | How |
 | --- | --- | --- |
-| **Codespaces** (recommended in-session) | Everyone, any OS | "Open in Codespaces" button / QR. Devcontainer uses a pre-built image (GHCR) with `aigw`, Envoy and otel-tui baked in (`npm ci` runs on create). LLM: BYO key, or the `scripted` brain. (GitHub Models, the original zero-key plan, was retired on 2026-07-30 — verified in a Codespace: `models.github.ai` answers every request with a bare `200 OK`.) |
+| **Codespaces** (recommended in-session) | Everyone, any OS | "Open in Codespaces" button / QR. Devcontainer uses a pre-built image (GHCR) with `aigw`, Envoy and otel-tui baked in (`npm ci` runs on create). LLM: a session-only key the facilitator hands out (`./lab llm workshop`; endpoint in `labs/workshop-llm.env`, key shown on the slide from an uncommitted `slides/.env.local`), BYO key, or the `scripted` brain. (GitHub Models, the original zero-key plan, was retired on 2026-07-30 — verified in a Codespace: `models.github.ai` answers every request with a bare `200 OK`.) |
 | **Local** | macOS arm64 / Linux, decent bandwidth | `./lab setup` downloads `aigw` v1.1.0 + Envoy + `npm ci`. Warned as ~330 MB |
 
 ## 8. Repository layout
@@ -271,7 +271,7 @@ takehome/kubernetes/       kind + Helm + the same MCPRoute
 | Risk | Mitigation |
 | --- | --- |
 | Codespace slow to start | Prebuilt image; QR at minute 0; facilitator demo continues on screen |
-| No LLM key | `scripted` brain still makes real tool calls through the router (clearly labelled); every checkpoint passes with it |
+| No LLM key | Facilitator-issued, budget-capped session key (`./lab llm workshop`); `scripted` brain as the fallback — it still makes real tool calls through the router and every checkpoint passes with it |
 | LLM picks odd tools / loops | Max-step limit; tool calls printed live; deterministic `scripted` fallback |
 | Someone falls behind | `./lab solution N`; every lab starts from a known state |
 | Public MCP server outage | Core path is 100% local |

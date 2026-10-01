@@ -53,25 +53,50 @@ export async function spin<T>(label: string, work: () => Promise<T>): Promise<T>
 
 export async function ask(question: string, opts: { hidden?: boolean; fallback?: string } = {}): Promise<string> {
   if (!process.stdin.isTTY) return opts.fallback ?? "";
+  if (opts.hidden) return askHidden(question, opts.fallback);
   const rl = readline.createInterface({ input: process.stdin, output: process.stdout, terminal: true });
-  if (opts.hidden) {
-    // Mask typed characters (API keys) while keeping the prompt visible.
-    const out = rl as unknown as { _writeToOutput: (s: string) => void; output: NodeJS.WriteStream };
-    let prompted = false;
-    out._writeToOutput = (s: string) => {
-      if (!prompted) {
-        out.output.write(s);
-        prompted = s.includes(question);
-      } else if (s.includes("\n") || s.includes("\r")) out.output.write("\n");
-      else out.output.write("•");
-    };
-  }
   try {
     const answer = (await rl.question(question)).trim();
     return answer || opts.fallback || "";
+  } catch {
+    // Ctrl+D / Ctrl+C at a prompt: treat it as "no answer" instead of a stack trace.
+    process.stdout.write("\n");
+    return opts.fallback ?? "";
   } finally {
     rl.close();
   }
+}
+
+/** Read a secret (an API key) without echoing it: each character shows as a dot. */
+function askHidden(question: string, fallback = ""): Promise<string> {
+  const stdin = process.stdin;
+  process.stdout.write(question);
+  stdin.setRawMode(true);
+  stdin.resume();
+  stdin.setEncoding("utf8");
+  let value = "";
+  return new Promise((resolve) => {
+    const done = (result: string) => {
+      stdin.off("data", onData);
+      stdin.setRawMode(false);
+      stdin.pause();
+      process.stdout.write("\n");
+      resolve(result.trim() || fallback);
+    };
+    const onData = (chunk: string) => {
+      for (const ch of chunk) {
+        if (ch === "\r" || ch === "\n") return done(value);
+        if (ch === "\u0003" || ch === "\u0004") return done(""); // Ctrl+C / Ctrl+D
+        if (ch === "\u007f" || ch === "\b") {
+          if (value) (value = value.slice(0, -1)), process.stdout.write("\b \b");
+        } else if (ch >= " ") {
+          value += ch;
+          process.stdout.write("•");
+        }
+      }
+    };
+    stdin.on("data", onData);
+  });
 }
 
 export const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
