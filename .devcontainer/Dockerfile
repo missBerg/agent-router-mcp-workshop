@@ -1,7 +1,7 @@
 # Workshop image: Node 24 + Agent Router (aigw) + Envoy pre-downloaded + otel-tui.
 # Built by .github/workflows/devcontainer-image.yml and cached on GHCR so a
 # Codespace starts in about a minute instead of downloading ~330 MB per attendee.
-FROM mcr.microsoft.com/devcontainers/javascript-node:1-24-bookworm
+FROM mcr.microsoft.com/devcontainers/javascript-node:24-bookworm
 
 ARG AIGW_VERSION=v1.1.0
 ARG OTEL_TUI_VERSION=v0.7.5
