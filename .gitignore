@@ -1,0 +1,9 @@
+node_modules/
+workspace/
+.env
+.aigw/
+*.log
+dist/
+site/.vitepress/cache/
+site/.vitepress/dist/
+.DS_Store
