@@ -1,0 +1,7 @@
+# Everything Lakeshore Labs runs in the take-home lives in one namespace:
+# the MCP servers, their Services, the Gateway, the JWKS and the MCPRoute.
+# (Envoy Gateway runs the Envoy pods themselves in envoy-gateway-system.)
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: lakeshore

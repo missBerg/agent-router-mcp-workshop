@@ -1,0 +1,56 @@
+# The five Lakeshore Labs MCP servers (started by `./lab run`, code in servers/).
+# An MCPRoute's backendRefs point at these by name.
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: Backend
+metadata:
+  name: issues
+  namespace: default
+spec:
+  endpoints:
+    - ip:
+        address: 127.0.0.1
+        port: 3001
+---
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: Backend
+metadata:
+  name: ci
+  namespace: default
+spec:
+  endpoints:
+    - ip:
+        address: 127.0.0.1
+        port: 3002
+---
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: Backend
+metadata:
+  name: deploy
+  namespace: default
+spec:
+  endpoints:
+    - ip:
+        address: 127.0.0.1
+        port: 3003
+---
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: Backend
+metadata:
+  name: docs
+  namespace: default
+spec:
+  endpoints:
+    - ip:
+        address: 127.0.0.1
+        port: 3004
+---
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: Backend
+metadata:
+  name: chat
+  namespace: default
+spec:
+  endpoints:
+    - ip:
+        address: 127.0.0.1
+        port: 3005

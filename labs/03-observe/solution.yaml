@@ -1,0 +1,139 @@
+# Lab 3 — Observe (solution)
+#
+# Same policy as the end of Lab 2. Two small edits make every log line and
+# trace span say WHICH agent made the call:
+#   1. here: copy the token's `sub` claim into an x-agent-id request header
+#   2. in workspace/telemetry.env: map that header to the agent.id attribute
+#
+# After every edit:  ./lab run
+# Check your work:   ./lab check 3
+apiVersion: aigateway.envoyproxy.io/v1beta1
+kind: MCPRoute
+metadata:
+  name: ship-it
+  namespace: default
+spec:
+  parentRefs:
+    - name: aigw-run
+      kind: Gateway
+      group: gateway.networking.k8s.io
+  path: /mcp
+  backendRefs:
+    - name: issues
+      kind: Backend
+      group: gateway.envoyproxy.io
+      path: /mcp
+      toolSelector:
+        include: [get_issue, add_comment]
+    - name: ci
+      kind: Backend
+      group: gateway.envoyproxy.io
+      path: /mcp
+      toolSelector:
+        include: [list_pipeline_runs, get_job_logs]
+    - name: docs
+      kind: Backend
+      group: gateway.envoyproxy.io
+      path: /mcp
+      toolSelector:
+        include: [search_docs]
+    - name: deploy
+      kind: Backend
+      group: gateway.envoyproxy.io
+      path: /mcp
+      toolSelector:
+        include: [deploy, get_deployment_status]
+    - name: chat
+      kind: Backend
+      group: gateway.envoyproxy.io
+      path: /mcp
+      toolSelector:
+        include: [post_message]
+
+  securityPolicy:
+    # 1) Authentication: every request needs a valid bearer token (otherwise 401).
+    #    The router also serves OAuth Protected Resource Metadata, per the MCP
+    #    authorization spec, so real MCP clients can discover how to log in.
+    oauth:
+      issuer: https://auth.lakeshore.example
+      audiences: [http://localhost:1975/mcp]
+      jwks:
+        localJWKS: # the workshop's public key set (labs/keys/jwks.json)
+          type: ValueRef
+          valueRef:
+            group: ""
+            kind: ConfigMap
+            name: workshop-jwks
+      # Copy the JWT `sub` claim into an x-agent-id header after validating the token.
+      claimToHeaders:
+        - claim: sub
+          header: x-agent-id
+      protectedResourceMetadata:
+        resource: http://localhost:1975/mcp
+        resourceName: Lakeshore Labs ship-it tools
+        scopesSupported: [issues:read, issues:write, ci:read, docs:read, chat:write, deploy:write]
+
+    # 2) Authorization: rules are evaluated in order; the first match wins.
+    #    Nothing matched? -> defaultAction. tools/list is filtered by the same
+    #    rules, so an agent only discovers the tools it is allowed to call.
+    authorization:
+      defaultAction: Deny
+      rules:
+        - source:
+            jwt:
+              scopes: [issues:read]
+          target:
+            tools:
+              - backend: issues
+                tool: get_issue
+        - source:
+            jwt:
+              scopes: [issues:write]
+          target:
+            tools:
+              - backend: issues
+                tool: add_comment
+        - source:
+            jwt:
+              scopes: [ci:read]
+          target:
+            tools:
+              - backend: ci
+                tool: list_pipeline_runs
+              - backend: ci
+                tool: get_job_logs
+        - source:
+            jwt:
+              scopes: [docs:read]
+          target:
+            tools:
+              - backend: docs
+                tool: search_docs
+        - source:
+            jwt:
+              scopes: [chat:write]
+          target:
+            tools:
+              - backend: chat
+                tool: post_message
+
+        # Lakeshore's runbook: "production deploys require a human".
+        # Deny-first: this rule must come BEFORE the deploy:write allow rule.
+        # (An allow rule with an argument condition would hide `deploy` from
+        # tools/list, because there are no arguments when tools are listed.)
+        - target:
+            tools:
+              - backend: deploy
+                tool: deploy
+          cel: request.mcp.params.?arguments.?environment.orValue("") == "production"
+          action: Deny
+
+        - source:
+            jwt:
+              scopes: [deploy:write]
+          target:
+            tools:
+              - backend: deploy
+                tool: deploy
+              - backend: deploy
+                tool: get_deployment_status

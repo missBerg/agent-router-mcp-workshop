@@ -1,0 +1,387 @@
+/* Agent Router visual identity (tokens from theagentrouter.ai: Marquee orange,
+   ink, cream, verdigris; Archivo / Inter / JetBrains Mono) mapped onto VitePress. */
+:root {
+  --ar-marquee-050: #fff3ec;
+  --ar-marquee-300: #ffa066;
+  --ar-marquee-400: #ff7a33;
+  --ar-marquee-500: #ff5500;
+  --ar-marquee-600: #e04400;
+  --ar-marquee-700: #b83700;
+  --ar-verdigris-400: #31c4aa;
+  --ar-verdigris-500: #1a937f;
+  --ar-verdigris-700: #116355;
+  --ar-raspberry-400: #e1478a;
+  --ar-raspberry-500: #dc186d;
+  --ar-gilt-500: #d9a441;
+  --ar-gilt-750: #8a6318;
+  --ar-spotlight-300: #a3acd4;
+  --ar-spotlight-700: #454f7d;
+  --ar-velvet-400: #8a6a7e;
+  --ar-velvet-600: #55394c;
+  --ar-ink-900: #12100e;
+  --ar-ink-800: #241f1b;
+  --ar-ink-600: #4a423c;
+  --ar-cream: #fbf8f5;
+  --ar-cream-2: #f4eee7;
+  --ar-cream-3: #eae1d7;
+
+  --vp-font-family-base: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --vp-font-family-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  --vp-c-brand-1: var(--ar-marquee-700);
+  --vp-c-brand-2: var(--ar-marquee-600);
+  --vp-c-brand-3: var(--ar-marquee-500);
+  --vp-c-brand-soft: rgba(255, 85, 0, 0.12);
+  --vp-c-bg: var(--ar-cream);
+  --vp-c-bg-alt: var(--ar-cream-2);
+  --vp-c-bg-soft: var(--ar-cream-2);
+  --vp-c-divider: var(--ar-cream-3);
+  --vp-c-text-1: var(--ar-ink-900);
+  --vp-c-text-2: var(--ar-ink-600);
+  --vp-button-brand-bg: var(--ar-marquee-700);
+  --vp-button-brand-hover-bg: var(--ar-marquee-600);
+  --vp-home-hero-name-color: var(--ar-marquee-700);
+
+  --step-goal: var(--ar-marquee-700);
+  --step-recall: var(--ar-velvet-600);
+  --step-predict: var(--ar-spotlight-700);
+  --step-run: var(--ar-verdigris-700);
+  --step-investigate: var(--ar-gilt-750);
+  --step-modify: var(--ar-marquee-700);
+  --step-checkpoint: var(--ar-verdigris-700);
+  --step-make: var(--ar-raspberry-500);
+  --step-explore: var(--ar-spotlight-700);
+  --step-reflect: var(--ar-velvet-600);
+  --step-stuck: var(--ar-ink-600);
+}
+
+.dark {
+  --vp-c-brand-1: var(--ar-marquee-300);
+  --vp-c-brand-2: var(--ar-marquee-400);
+  --vp-c-brand-3: var(--ar-marquee-500);
+  --vp-c-bg: var(--ar-ink-900);
+  --vp-c-bg-alt: #0b0a09;
+  --vp-c-bg-soft: var(--ar-ink-800);
+  --vp-c-divider: #3a332d;
+  --vp-c-text-1: #f4eee7;
+  --vp-c-text-2: #c9bfb5;
+  --vp-button-brand-bg: var(--ar-marquee-500);
+  --vp-button-brand-text: var(--ar-ink-900);
+  --vp-button-brand-hover-bg: var(--ar-marquee-400);
+  --vp-home-hero-name-color: var(--ar-marquee-400);
+
+  --step-goal: var(--ar-marquee-400);
+  --step-recall: #b893aa; /* velvet, lightened for ≥4.5:1 contrast on ink */
+  --step-predict: var(--ar-spotlight-300);
+  --step-run: var(--ar-verdigris-400);
+  --step-investigate: var(--ar-gilt-500);
+  --step-modify: var(--ar-marquee-400);
+  --step-checkpoint: var(--ar-verdigris-400);
+  --step-make: var(--ar-raspberry-400);
+  --step-explore: var(--ar-spotlight-300);
+  --step-reflect: #b893aa;
+  --step-stuck: #c9bfb5;
+}
+
+.vp-doc h1,
+.vp-doc h2,
+.vp-doc h3,
+.VPHero .name,
+.VPHero .text {
+  font-family: "Archivo", var(--vp-font-family-base);
+  letter-spacing: -0.01em;
+}
+
+/* Home hero: the title in brand orange, the hook line as a quieter second line. */
+.VPHero .name {
+  max-width: 820px;
+}
+.VPHero .text {
+  max-width: 820px;
+  margin-top: 12px;
+  font-size: clamp(24px, 3.2vw, 38px);
+  line-height: 1.2;
+  font-weight: 600;
+}
+.VPHero .tagline {
+  max-width: 680px;
+}
+
+/* ---- learning-step blocks ---- */
+.vp-doc .step {
+  --c: var(--vp-c-brand-1);
+  margin: 20px 0;
+  padding: 12px 18px 4px;
+  border-left: 4px solid var(--c);
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--c) 7%, var(--vp-c-bg));
+}
+.vp-doc .step-title {
+  margin: 0 0 6px;
+  padding-top: 0;
+  border-top: 0;
+  line-height: 1.5;
+  font-family: "Archivo", var(--vp-font-family-base);
+  font-weight: 700;
+  font-size: 0.95rem;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--c);
+}
+.vp-doc .step-icon::before {
+  display: inline-block;
+  width: 1.4em;
+}
+.vp-doc .step > :last-child {
+  margin-bottom: 12px;
+}
+.vp-doc .step-goal { --c: var(--step-goal); }
+.vp-doc .step-goal .step-icon::before { content: "◎"; }
+.vp-doc .step-recall { --c: var(--step-recall); }
+.vp-doc .step-recall .step-icon::before { content: "↺"; }
+.vp-doc .step-predict { --c: var(--step-predict); }
+.vp-doc .step-predict .step-icon::before { content: "?"; }
+.vp-doc .step-run { --c: var(--step-run); }
+.vp-doc .step-run .step-icon::before { content: "▶"; }
+.vp-doc .step-investigate { --c: var(--step-investigate); }
+.vp-doc .step-investigate .step-icon::before { content: "⌕"; }
+.vp-doc .step-modify { --c: var(--step-modify); }
+.vp-doc .step-modify .step-icon::before { content: "✎"; }
+.vp-doc .step-checkpoint { --c: var(--step-checkpoint); border-left-width: 6px; }
+.vp-doc .step-checkpoint .step-icon::before { content: "✓"; }
+.vp-doc .step-make { --c: var(--step-make); }
+.vp-doc .step-make .step-icon::before { content: "✦"; }
+.vp-doc .step-explore { --c: var(--step-explore); }
+.vp-doc .step-explore .step-icon::before { content: "→"; }
+.vp-doc .step-reflect { --c: var(--step-reflect); }
+.vp-doc .step-reflect .step-icon::before { content: "◇"; }
+.vp-doc .step-stuck { --c: var(--step-stuck); }
+.vp-doc .step-stuck .step-icon::before { content: "!"; }
+
+/* Code, tables and hint blocks inside a step block sit on the tinted background. */
+.vp-doc .step div[class*="language-"] {
+  margin: 12px 0;
+}
+.vp-doc .step .custom-block.details {
+  background: var(--vp-c-bg);
+  border: 1px solid var(--vp-c-divider);
+}
+.vp-doc .step table {
+  background: var(--vp-c-bg);
+}
+
+/* Inline legend chips that look like the step titles (home page). */
+.vp-doc .step-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 10px 1px 8px;
+  border-left: 3px solid var(--c, var(--vp-c-brand-1));
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--c, var(--vp-c-brand-1)) 9%, var(--vp-c-bg));
+  color: var(--c, var(--vp-c-brand-1));
+  font-family: "Archivo", var(--vp-font-family-base);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.vp-doc .step-chip .step-icon::before {
+  width: 1.3em;
+}
+.vp-doc .step-chip.step-checkpoint {
+  border-left-width: 3px;
+}
+
+/* Architecture diagram (home page): plain HTML so it is readable by screen readers,
+   theme-aware, and reflows on small screens. */
+.vp-doc .arch {
+  margin: 28px 0 12px;
+  display: grid;
+  justify-items: center;
+  font-size: 0.88rem;
+  line-height: 1.45;
+}
+.vp-doc .arch-node {
+  border: 1.5px solid var(--vp-c-divider);
+  border-radius: 10px;
+  background: var(--vp-c-bg-soft);
+  padding: 10px 14px;
+  text-align: center;
+}
+.vp-doc .arch-node strong {
+  display: block;
+  font-family: "Archivo", var(--vp-font-family-base);
+  font-size: 1rem;
+}
+.vp-doc .arch-node small {
+  display: block;
+  color: var(--vp-c-text-2);
+  font-size: 0.8rem;
+}
+.vp-doc .arch-agent {
+  min-width: min(100%, 300px);
+}
+.vp-doc .arch-arrow {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: var(--vp-c-text-2);
+  font-size: 0.78rem;
+  text-align: center;
+}
+.vp-doc .arch-arrow::before {
+  content: "";
+  width: 2px;
+  height: 14px;
+  background: currentColor;
+}
+.vp-doc .arch-arrow::after {
+  content: "";
+  border: 6px solid transparent;
+  border-top: 8px solid currentColor;
+  border-bottom: 0;
+  margin-top: 2px;
+}
+.vp-doc .arch-arrow code {
+  font-size: 0.78rem;
+}
+.vp-doc .arch-router {
+  width: 100%;
+  border: 2px solid var(--vp-c-brand-1);
+  background: color-mix(in srgb, var(--vp-c-brand-1) 6%, var(--vp-c-bg));
+  padding: 12px;
+}
+.vp-doc .arch-router > strong {
+  color: var(--vp-c-brand-1);
+  margin-bottom: 8px;
+}
+.vp-doc .arch-paths,
+.vp-doc .arch-bottom {
+  display: grid;
+  grid-template-columns: 5fr 1.4fr;
+  gap: 12px;
+  width: 100%;
+}
+.vp-doc .arch-path {
+  border-radius: 8px;
+  background: var(--vp-c-bg);
+  border: 1px solid var(--vp-c-divider);
+  padding: 8px 10px;
+  text-align: left;
+}
+.vp-doc .arch-path ol {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 6px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.vp-doc .arch-path li {
+  margin: 0;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--vp-c-brand-soft);
+  font-weight: 600;
+}
+.vp-doc .arch-path li small {
+  display: inline;
+  font-weight: 500;
+}
+.vp-doc .arch-path p {
+  margin: 6px 0 0;
+  line-height: 1.4;
+  font-size: 0.82rem;
+  color: var(--vp-c-text-2);
+}
+.vp-doc .arch-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.vp-doc .arch-servers {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 8px;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.vp-doc .arch-servers li {
+  margin: 0;
+}
+.vp-doc .arch-servers .arch-node,
+.vp-doc .arch-llm {
+  padding: 8px 6px;
+  height: 100%;
+}
+.vp-doc .arch-llm {
+  width: 100%;
+  border-style: dashed;
+}
+.vp-doc .arch figcaption {
+  margin-top: 14px;
+  max-width: 62ch;
+  text-align: center;
+  font-size: 0.85rem;
+  color: var(--vp-c-text-2);
+}
+@media (max-width: 640px) {
+  .vp-doc .arch-paths,
+  .vp-doc .arch-bottom {
+    grid-template-columns: 1fr;
+  }
+  .vp-doc .arch-servers {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+/* Lab meta line: "Core 17 min · Stretch · Explore" */
+.vp-doc .lab-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: -4px 0 20px;
+}
+.vp-doc .lab-meta span {
+  padding: 2px 10px;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  background: var(--vp-c-bg-soft);
+  border: 1px solid var(--vp-c-divider);
+}
+.vp-doc .lab-meta .core {
+  background: var(--vp-c-brand-soft);
+  border-color: transparent;
+  color: var(--vp-c-brand-1);
+}
+
+/* Terminal transcripts */
+.vp-doc div[class*="language-console"] code,
+.vp-doc div[class*="language-text"] code {
+  font-size: 0.82rem;
+}
+@media (max-width: 640px) {
+  .vp-doc .arch-bottom {
+    gap: 4px;
+  }
+}
+@media (max-width: 640px) {
+  .vp-doc .step {
+    padding: 10px 12px 2px;
+  }
+}
+
+/* Task lists (facilitator checklists) */
+.vp-doc li:has(> .task-list-item-checkbox),
+.vp-doc li:has(> p > .task-list-item-checkbox) {
+  list-style: none;
+  margin-left: -1.2em;
+}
+.vp-doc .task-list-item-checkbox {
+  margin-right: 0.4em;
+  vertical-align: middle;
+}

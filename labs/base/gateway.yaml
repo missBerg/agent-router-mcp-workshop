@@ -1,0 +1,143 @@
+# Shared router plumbing for every lab. You don't need to edit this file —
+# `./lab run` combines it with your workspace/mcproute.yaml.
+#
+# It defines where the router listens (:1975) and what it writes to the access
+# log (.lab/access.log, pretty-printed by `./lab logs`).
+apiVersion: gateway.networking.k8s.io/v1
+kind: GatewayClass
+metadata:
+  name: aigw-run
+spec:
+  controllerName: gateway.envoyproxy.io/gatewayclass-controller
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: aigw-run
+  namespace: default
+spec:
+  gatewayClassName: aigw-run
+  listeners:
+    - name: http
+      protocol: HTTP
+      port: 1975
+  infrastructure:
+    parametersRef:
+      group: gateway.envoyproxy.io
+      kind: EnvoyProxy
+      name: lab-router
+---
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: EnvoyProxy
+metadata:
+  name: lab-router
+  namespace: default
+spec:
+  logging:
+    level:
+      default: error
+  bootstrap:
+    type: Merge
+    value: |-
+      admin:
+        address:
+          socket_address:
+            address: 127.0.0.1
+            port_value: 9901
+  telemetry:
+    accessLog:
+      settings:
+        # One line per MCP request the router sends to a backend server.
+        - matches:
+            - "request.headers['x-ai-eg-mcp-backend'] != ''"
+          sinks:
+            - type: File
+              file:
+                path: ${LAB_ACCESS_LOG}
+          format:
+            type: JSON
+            json:
+              kind: mcp
+              time: "%START_TIME%"
+              mcp.method.name: "%DYNAMIC_METADATA(io.envoy.ai_gateway:mcp_method)%"
+              mcp.provider.name: "%DYNAMIC_METADATA(io.envoy.ai_gateway:mcp_backend)%"
+              mcp.tool.name: "%DYNAMIC_METADATA(io.envoy.ai_gateway:mcp_tool_name)%"
+              jsonrpc.request.id: "%DYNAMIC_METADATA(io.envoy.ai_gateway:mcp_request_id)%"
+              session.id: "%DYNAMIC_METADATA(io.envoy.ai_gateway:session.id)%"
+              agent.id: "%DYNAMIC_METADATA(io.envoy.ai_gateway:agent.id)%"
+              response_code: "%RESPONSE_CODE%"
+              duration_ms: "%DURATION%"
+        # Requests the router rejected at the front door (401 no token, 403 denied by policy).
+        - matches:
+            - "!('x-ai-eg-mcp-backend' in request.headers) && request.path.startsWith('/mcp') && response.code >= 400"
+          sinks:
+            - type: File
+              file:
+                path: ${LAB_ACCESS_LOG}
+          format:
+            type: JSON
+            json:
+              kind: door
+              time: "%START_TIME%"
+              path: "%REQ(:PATH)%"
+              session.id: "%REQ(AGENT-SESSION-ID)%"
+              agent.id: "%REQ(X-AGENT-ID)%"
+              response_code: "%RESPONSE_CODE%"
+              duration_ms: "%DURATION%"
+        # One line per LLM request (when the agent's model traffic goes through the router).
+        - matches:
+            - "request.headers['x-ai-eg-model'] != ''"
+          sinks:
+            - type: File
+              file:
+                path: ${LAB_ACCESS_LOG}
+          format:
+            type: JSON
+            json:
+              kind: llm
+              time: "%START_TIME%"
+              gen_ai.request.model: "%REQ(X-AI-EG-MODEL)%"
+              gen_ai.usage.input_tokens: "%DYNAMIC_METADATA(io.envoy.ai_gateway:llm_input_token)%"
+              gen_ai.usage.output_tokens: "%DYNAMIC_METADATA(io.envoy.ai_gateway:llm_output_token)%"
+              session.id: "%DYNAMIC_METADATA(io.envoy.ai_gateway:session.id)%"
+              response_code: "%RESPONSE_CODE%"
+              duration_ms: "%DURATION%"
+---
+# AI requests and tool lists can be large; raise Envoy's default 32 KiB buffer.
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: ClientTrafficPolicy
+metadata:
+  name: client-buffer-limit
+  namespace: default
+spec:
+  targetRefs:
+    - group: gateway.networking.k8s.io
+      kind: Gateway
+      name: aigw-run
+  connection:
+    bufferLimit: 50Mi
+---
+# Only this machine may use the router. aigw run has Envoy listen on every interface
+# (0.0.0.0:1975) and has no option to bind to localhost, and the LLM route spends your
+# API key, so on shared Wi-Fi anyone on the network could otherwise use it. Clients from
+# other machines get a 403. Limits in aigw v1.1.0: an MCPRoute with its own securityPolicy
+# (Labs 2-3) replaces this policy for MCP traffic, which then relies on its token check;
+# the admin port :1064 (metrics, health) still answers on every interface; and a Codespace
+# port set to Public arrives from inside the container, so this doesn't protect it.
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: SecurityPolicy
+metadata:
+  name: this-machine-only
+  namespace: default
+spec:
+  targetRefs:
+    - group: gateway.networking.k8s.io
+      kind: Gateway
+      name: aigw-run
+  authorization:
+    defaultAction: Deny
+    rules:
+      - name: loopback
+        action: Allow
+        principal:
+          clientCIDRs: ["127.0.0.0/8", "::1/128"]

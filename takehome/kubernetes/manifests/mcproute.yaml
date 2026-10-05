@@ -1,0 +1,143 @@
+# Lab 2's MCPRoute (labs/02-authorize/solution.yaml), deployed to Kubernetes.
+#
+# What changed compared with the lab solution (each change is marked "CHANGED" below):
+#   1. metadata.namespace   default             -> lakeshore
+#   2. parentRefs[0].name   aigw-run            -> agent-router  (the Gateway in 20-gateway.yaml)
+#   3. backendRefs[*]       kind: Backend,         -> port: 3001..3005
+#                           group: gateway.envoyproxy.io
+#      Locally, each name pointed at an Envoy Gateway Backend at 127.0.0.1:300x
+#      (labs/base/backends.yaml). Here it points at the in-cluster Service of the same name
+#      (10-servers.yaml). A backendRef without kind/group means a Service, and a Service
+#      reference needs a port.
+#
+# Everything else is byte-for-byte the lab's: the path, every toolSelector, the OAuth settings
+# and all the authorization rules. The tool names stay issues__get_issue, deploy__deploy, ...
+# because they come from the backendRef names, which are unchanged.
+#
+# The audience is still http://localhost:1975/mcp because that's what `./lab token` puts in the
+# `aud` claim, so the lab's tokens work here unchanged. In production, `audiences` and
+# `protectedResourceMetadata.resource` are the real public URL of your MCP endpoint, and your
+# authorization server puts that URL in the tokens it issues.
+#
+# After every edit:  kubectl apply -f takehome/kubernetes/manifests/mcproute.yaml
+apiVersion: aigateway.envoyproxy.io/v1beta1
+kind: MCPRoute
+metadata:
+  name: ship-it
+  namespace: lakeshore # CHANGED (1)
+spec:
+  parentRefs:
+    - name: agent-router # CHANGED (2)
+      kind: Gateway
+      group: gateway.networking.k8s.io
+  path: /mcp
+  backendRefs:
+    - name: issues
+      port: 3001 # CHANGED (3): Service issues:3001
+      path: /mcp
+      toolSelector:
+        include: [get_issue, add_comment]
+    - name: ci
+      port: 3002 # CHANGED (3): Service ci:3002
+      path: /mcp
+      toolSelector:
+        include: [list_pipeline_runs, get_job_logs]
+    - name: docs
+      port: 3004 # CHANGED (3): Service docs:3004
+      path: /mcp
+      toolSelector:
+        include: [search_docs]
+    - name: deploy
+      port: 3003 # CHANGED (3): Service deploy:3003
+      path: /mcp
+      toolSelector:
+        include: [deploy, get_deployment_status]
+    - name: chat
+      port: 3005 # CHANGED (3): Service chat:3005
+      path: /mcp
+      toolSelector:
+        include: [post_message]
+
+  securityPolicy:
+    # 1) Authentication: every request needs a valid bearer token (otherwise 401).
+    #    The router also serves OAuth Protected Resource Metadata, per the MCP
+    #    authorization spec, so real MCP clients can discover how to log in.
+    oauth:
+      issuer: https://auth.lakeshore.example
+      audiences: [http://localhost:1975/mcp]
+      jwks:
+        localJWKS: # the workshop's public key set (30-workshop-jwks.yaml)
+          type: ValueRef
+          valueRef:
+            group: ""
+            kind: ConfigMap
+            name: workshop-jwks
+      protectedResourceMetadata:
+        resource: http://localhost:1975/mcp
+        resourceName: Lakeshore Labs ship-it tools
+        scopesSupported: [issues:read, issues:write, ci:read, docs:read, chat:write, deploy:write]
+
+    # 2) Authorization: rules are evaluated in order; the first match wins.
+    #    Nothing matched? -> defaultAction. tools/list is filtered by the same
+    #    rules, so an agent only discovers the tools it is allowed to call.
+    authorization:
+      defaultAction: Deny
+      rules:
+        - source:
+            jwt:
+              scopes: [issues:read]
+          target:
+            tools:
+              - backend: issues
+                tool: get_issue
+        - source:
+            jwt:
+              scopes: [issues:write]
+          target:
+            tools:
+              - backend: issues
+                tool: add_comment
+        - source:
+            jwt:
+              scopes: [ci:read]
+          target:
+            tools:
+              - backend: ci
+                tool: list_pipeline_runs
+              - backend: ci
+                tool: get_job_logs
+        - source:
+            jwt:
+              scopes: [docs:read]
+          target:
+            tools:
+              - backend: docs
+                tool: search_docs
+        - source:
+            jwt:
+              scopes: [chat:write]
+          target:
+            tools:
+              - backend: chat
+                tool: post_message
+
+        # Lakeshore's runbook: "production deploys require a human".
+        # Deny-first: this rule must come BEFORE the deploy:write allow rule.
+        # (An allow rule with an argument condition would hide `deploy` from
+        # tools/list, because there are no arguments when tools are listed.)
+        - target:
+            tools:
+              - backend: deploy
+                tool: deploy
+          cel: request.mcp.params.?arguments.?environment.orValue("") == "production"
+          action: Deny
+
+        - source:
+            jwt:
+              scopes: [deploy:write]
+          target:
+            tools:
+              - backend: deploy
+                tool: deploy
+              - backend: deploy
+                tool: get_deployment_status

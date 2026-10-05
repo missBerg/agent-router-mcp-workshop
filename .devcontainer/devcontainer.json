@@ -1,0 +1,35 @@
+{
+  "name": "Agent Router · MCP workshop",
+  "build": {
+    "dockerfile": "Dockerfile",
+    "context": ".",
+    "cacheFrom": "ghcr.io/missberg/agent-router-mcp-workshop/devcontainer:latest"
+  },
+  "hostRequirements": { "cpus": 2, "memory": "4gb" },
+  "forwardPorts": [1975, 1064, 4318],
+  "portsAttributes": {
+    "1975": { "label": "Agent Router (MCP + LLM)", "onAutoForward": "silent" },
+    "1064": { "label": "Router admin / metrics", "onAutoForward": "silent" },
+    "4318": { "label": "OTLP (otel-tui)", "onAutoForward": "ignore" },
+    "3001-3005": { "label": "Lakeshore MCP servers", "onAutoForward": "ignore" },
+    "9901": { "label": "Envoy admin", "onAutoForward": "ignore" }
+  },
+  "postCreateCommand": "npm ci --no-audit --no-fund --loglevel=error",
+  "postAttachCommand": "./lab doctor || true",
+  "customizations": {
+    "codespaces": {
+      "openFiles": ["README.md"]
+    },
+    "vscode": {
+      "extensions": ["redhat.vscode-yaml"],
+      "settings": {
+        "editor.tabSize": 2,
+        "editor.insertSpaces": true,
+        "editor.renderWhitespace": "boundary",
+        "files.associations": { "*.env": "properties" },
+        "terminal.integrated.defaultProfile.linux": "bash",
+        "workbench.startupEditor": "none"
+      }
+    }
+  }
+}

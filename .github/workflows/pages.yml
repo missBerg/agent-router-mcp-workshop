@@ -1,0 +1,51 @@
+name: lab site + slides
+
+on:
+  push:
+    branches: [main]
+    paths: ["site/**", "slides/**", "facilitator/**", ".github/workflows/pages.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false # never cut off a deploy mid-flight
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0 # lastUpdated timestamps
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+      - name: Build lab site
+        working-directory: site
+        run: npm ci && npm run build
+      - name: Build slides
+        working-directory: slides
+        run: npm ci && npm run build
+      - name: Assemble
+        run: |
+          mkdir -p _site
+          cp -r site/.vitepress/dist/. _site/
+          mkdir -p _site/slides && cp -r slides/dist/. _site/slides/
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v5

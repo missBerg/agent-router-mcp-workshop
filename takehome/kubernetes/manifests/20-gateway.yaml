@@ -1,0 +1,102 @@
+# The router's front door: the Kubernetes version of labs/base/gateway.yaml.
+#
+# Local lab:  `aigw run` hosts a Gateway named `aigw-run` that listens on localhost:1975.
+# Here:       Envoy Gateway runs a Gateway named `agent-router` as an Envoy Deployment plus a
+#             ClusterIP Service, both called `agent-router`, in envoy-gateway-system.
+#             Agent Router's controller adds its MCP proxy to that pod as soon as an
+#             MCPRoute attaches to the Gateway.
+#             Reach it with:  kubectl -n envoy-gateway-system port-forward svc/agent-router 8080:80
+apiVersion: gateway.networking.k8s.io/v1
+kind: GatewayClass
+metadata:
+  name: agent-router
+spec:
+  controllerName: gateway.envoyproxy.io/gatewayclass-controller
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: agent-router
+  namespace: lakeshore
+spec:
+  gatewayClassName: agent-router
+  listeners:
+    - name: http
+      protocol: HTTP
+      port: 80
+  infrastructure:
+    parametersRef:
+      group: gateway.envoyproxy.io
+      kind: EnvoyProxy
+      name: agent-router
+---
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: EnvoyProxy
+metadata:
+  name: agent-router
+  namespace: lakeshore
+spec:
+  provider:
+    type: Kubernetes
+    kubernetes:
+      # Fixed names instead of generated ones, so the commands in the README are copy-pasteable.
+      envoyDeployment:
+        name: agent-router
+      # kind has no load balancer; a ClusterIP Service plus `kubectl port-forward` is enough.
+      envoyService:
+        name: agent-router
+        type: ClusterIP
+  logging:
+    level:
+      default: error
+  telemetry:
+    accessLog:
+      settings:
+        # One line per MCP request the router sends to a backend server (as in the local lab).
+        #   kubectl -n envoy-gateway-system logs deploy/agent-router -c envoy -f
+        - matches:
+            - "request.headers['x-ai-eg-mcp-backend'] != ''"
+          sinks:
+            - type: File
+              file:
+                path: /dev/stdout
+          format:
+            type: JSON
+            json:
+              kind: mcp
+              time: "%START_TIME%"
+              mcp.method.name: "%DYNAMIC_METADATA(io.envoy.ai_gateway:mcp_method)%"
+              mcp.provider.name: "%DYNAMIC_METADATA(io.envoy.ai_gateway:mcp_backend)%"
+              mcp.tool.name: "%DYNAMIC_METADATA(io.envoy.ai_gateway:mcp_tool_name)%"
+              session.id: "%DYNAMIC_METADATA(io.envoy.ai_gateway:session.id)%"
+              response_code: "%RESPONSE_CODE%"
+              duration_ms: "%DURATION%"
+        # Requests the router rejected at the front door (401 no token, 403 denied by policy).
+        - matches:
+            - "!('x-ai-eg-mcp-backend' in request.headers) && request.path.startsWith('/mcp') && response.code >= 400"
+          sinks:
+            - type: File
+              file:
+                path: /dev/stdout
+          format:
+            type: JSON
+            json:
+              kind: door
+              time: "%START_TIME%"
+              path: "%REQ(:PATH)%"
+              response_code: "%RESPONSE_CODE%"
+              duration_ms: "%DURATION%"
+---
+# Tool lists can be large; raise Envoy's default 32 KiB buffer (same as the local lab).
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: ClientTrafficPolicy
+metadata:
+  name: client-buffer-limit
+  namespace: lakeshore
+spec:
+  targetRefs:
+    - group: gateway.networking.k8s.io
+      kind: Gateway
+      name: agent-router
+  connection:
+    bufferLimit: 50Mi

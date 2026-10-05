@@ -1,0 +1,103 @@
+# The five Lakeshore Labs MCP servers (servers/), in-cluster.
+#
+# Local lab:  `./lab run` starts `node servers/index.ts` on localhost:3001-3005 and
+#             labs/base/backends.yaml points one Envoy Gateway `Backend` at each port.
+# Here:       one Deployment runs the same process (image: takehome/kubernetes/servers.Dockerfile)
+#             and one Service per server gives each port a name the MCPRoute can reference.
+#
+# The Service name becomes the tool prefix (issues__get_issue), exactly like the Backend
+# name did locally, so the five Services keep the same names: issues, ci, deploy, docs, chat.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: lakeshore-servers
+  namespace: lakeshore
+  labels:
+    app: lakeshore-servers
+spec:
+  # Exactly one replica: the five servers share one in-memory world (add_comment -> get_issue),
+  # so a second replica would be a second, diverging Lakeshore Labs.
+  replicas: 1
+  selector:
+    matchLabels:
+      app: lakeshore-servers
+  template:
+    metadata:
+      labels:
+        app: lakeshore-servers
+    spec:
+      containers:
+        - name: servers
+          image: lakeshore-servers:workshop # built and `kind load`ed by up.sh
+          imagePullPolicy: IfNotPresent
+          ports:
+            - { name: issues, containerPort: 3001 }
+            - { name: ci, containerPort: 3002 }
+            - { name: deploy, containerPort: 3003 }
+            - { name: docs, containerPort: 3004 }
+            - { name: chat, containerPort: 3005 }
+          # The servers bind 3001..3005 in order, so once chat (3005) answers, all five do.
+          readinessProbe:
+            httpGet: { path: /healthz, port: chat }
+            periodSeconds: 2
+          livenessProbe:
+            httpGet: { path: /healthz, port: issues }
+            periodSeconds: 10
+          resources:
+            requests: { cpu: 50m, memory: 96Mi }
+            limits: { memory: 256Mi }
+          securityContext:
+            runAsNonRoot: true
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities: { drop: [ALL] }
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: issues
+  namespace: lakeshore
+spec:
+  selector: { app: lakeshore-servers }
+  ports:
+    - { name: mcp, port: 3001, targetPort: issues }
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ci
+  namespace: lakeshore
+spec:
+  selector: { app: lakeshore-servers }
+  ports:
+    - { name: mcp, port: 3002, targetPort: ci }
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: deploy
+  namespace: lakeshore
+spec:
+  selector: { app: lakeshore-servers }
+  ports:
+    - { name: mcp, port: 3003, targetPort: deploy }
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: docs
+  namespace: lakeshore
+spec:
+  selector: { app: lakeshore-servers }
+  ports:
+    - { name: mcp, port: 3004, targetPort: docs }
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: chat
+  namespace: lakeshore
+spec:
+  selector: { app: lakeshore-servers }
+  ports:
+    - { name: mcp, port: 3005, targetPort: chat }

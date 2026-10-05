@@ -1,0 +1,25 @@
+# The workshop's public signing keys: a copy of labs/keys/jwks.json, referenced by the
+# MCPRoute's securityPolicy.oauth.jwks.localJWKS (same ConfigMap name as in the local lab,
+# where `./lab run` generates it). up.sh checks that this copy still matches labs/keys/.
+#
+# In production you'd use remoteJWKS (or let the router discover the JWKS from your issuer)
+# instead of a ConfigMap.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: workshop-jwks
+  namespace: lakeshore
+data:
+  jwks: |
+    {
+      "keys": [
+        {
+          "kty": "RSA",
+          "n": "2MfbRUvOZYcwxLkq26ZKI0lQ6-herjY2GWLK2R_umj_U7turaeB8h9xPmPgr_aVXQD_YNDCC8FZU_pRd6VCT9FsyKjWl5-SW57WVZ64ErH0zwpee8thKY-TsKNFHhmxiqN0nnJ1GLJuPCpzOzqIUyvrUswdIrzumVLTu3ZeCXiJTdJJl7cVbidqwGcaCEtQvptM1NoNya0Cd0Wotgh6jy0OaUVMxym8JwMQjVPAsqufY0xYglN0bBW4qsu287jbLs3Hc9nBv4qEFQC6-UeePuoYRMf-pDSK5LqJ4GnXJVrTDbGNEunNWGMnvQIM6QaZXqwNWbB14qad6HP6a_WBiaQ",
+          "e": "AQAB",
+          "alg": "RS256",
+          "use": "sig",
+          "kid": "lakeshore-workshop-2026"
+        }
+      ]
+    }
