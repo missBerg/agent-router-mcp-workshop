@@ -116,3 +116,28 @@ spec:
       name: aigw-run
   connection:
     bufferLimit: 50Mi
+---
+# Only this machine may use the router. aigw run has Envoy listen on every interface
+# (0.0.0.0:1975) and has no option to bind to localhost, and the LLM route spends your
+# API key, so on shared Wi-Fi anyone on the network could otherwise use it. Clients from
+# other machines get a 403. Limits in aigw v1.1.0: an MCPRoute with its own securityPolicy
+# (Labs 2-3) replaces this policy for MCP traffic, which then relies on its token check;
+# the admin port :1064 (metrics, health) still answers on every interface; and a Codespace
+# port set to Public arrives from inside the container, so this doesn't protect it.
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: SecurityPolicy
+metadata:
+  name: this-machine-only
+  namespace: default
+spec:
+  targetRefs:
+    - group: gateway.networking.k8s.io
+      kind: Gateway
+      name: aigw-run
+  authorization:
+    defaultAction: Deny
+    rules:
+      - name: loopback
+        action: Allow
+        principal:
+          clientCIDRs: ["127.0.0.0/8", "::1/128"]
