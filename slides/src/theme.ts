@@ -1,6 +1,6 @@
 /**
  * Spectacle theme built on the Agent Router brand tokens
- * (src/styles/brand-tokens.css, vendored from theagentrouter/brand-assets).
+ * (src/styles/brand-tokens.css, vendored from theagentrouter/agent-router site/src/css/brand/, Apache-2.0).
  *
  * Slides are authored at 1920×1080 and Spectacle scales them to fit any
  * 16:9 window, so every px value in the deck is a 1080p px.

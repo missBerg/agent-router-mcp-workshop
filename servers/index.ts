@@ -1,11 +1,11 @@
 // Starts the five Lakeshore Labs MCP servers: `node servers/index.ts`
 //   SERVERS_BASE_PORT  first port (default 3001); the servers use base+0 .. base+4
-//   SERVERS_HOST       interface to bind (default 0.0.0.0)
+//   SERVERS_HOST       interface to bind (default 127.0.0.1 — set 0.0.0.0 in a container)
 
 import { startServers } from "./http.ts";
 
 const basePort = Number(process.env.SERVERS_BASE_PORT ?? 3001);
-const host = process.env.SERVERS_HOST ?? "0.0.0.0";
+const host = process.env.SERVERS_HOST ?? "127.0.0.1";
 
 try {
   const { servers, close } = await startServers({ basePort, host, log: (line) => console.log(line) });
@@ -18,7 +18,7 @@ try {
 } catch (err) {
   const e = err as NodeJS.ErrnoException & { port?: number };
   if (e.code === "EADDRINUSE") {
-    console.error(`Port ${e.port} is already in use - are the servers already running? Stop them, or set SERVERS_BASE_PORT.`);
+    console.error(`Port ${e.port} is already in use - are the servers already running? Try ./lab stop, or find what holds it with: lsof -nP -iTCP:${e.port} -sTCP:LISTEN`);
   } else {
     console.error(err);
   }

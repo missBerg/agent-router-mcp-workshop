@@ -14,9 +14,9 @@ export function S10Lab1Go() {
           segment="Lab 0 (5 min) → Lab 1 Aggregate & filter (17 min)"
           cues={[
             <>
-              <b>0:10</b> Everyone: <code>./lab doctor</code>. Red LLM check? <code>./lab llm</code> (BYO key).
-              No key at all: <code>./lab llm scripted</code>, a deterministic brain that
-              still makes real tool calls.
+              <b>0:10</b> Everyone: <code>./lab doctor</code>. Red LLM check? No key: <code>./lab llm workshop</code> and the key on this slide.
+              Own key: <code>./lab llm</code>. Nothing works: <code>./lab llm scripted</code>, a deterministic
+              brain that still makes real tool calls.
             </>,
             <>
               <b>0:13</b> Ask: "Who has seen the 200-tool banner from <code>./lab agent --direct</code>?" Remind them
@@ -44,7 +44,7 @@ export function S10Lab1Go() {
             <code>./lab agent --direct</code>, and note your own tool and token numbers.
           </p>
           <p>
-            Then Lab 1: <code>./lab start 1 && ./lab run</code> puts the router in front of all five servers. Your
+            Then Lab 1: <code>./lab start 1</code> puts the router in front of all five servers. Your
             agent now connects to one URL. Your job is to edit <b>one file</b>, <code>workspace/mcproute.yaml</code>,
             until it exposes exactly the 8 tools the job needs. Two backends are done for you.
           </p>

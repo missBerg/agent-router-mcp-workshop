@@ -118,7 +118,7 @@ export interface StartOptions {
 export interface RunningServer { name: string; port: number; url: string; tools: number }
 
 /** Starts all five servers on basePort + 0..4. */
-export async function startServers({ basePort = 3001, host = "0.0.0.0", log }: StartOptions = {}) {
+export async function startServers({ basePort = 3001, host = "127.0.0.1", log }: StartOptions = {}) {
   const httpServers: Server[] = [];
   const close = () =>
     Promise.all(httpServers.map((s) => new Promise<void>((resolve) => { s.closeAllConnections(); s.close(() => resolve()); })));

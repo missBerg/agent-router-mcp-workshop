@@ -34,7 +34,7 @@ export function S14Lab2Go() {
           ]}
         >
           <p>
-            Lab 2. <code>./lab start 2 && ./lab run</code> turns on identity. Run the agent as triage-bot first.{' '}
+            Lab 2. <code>./lab start 2</code> turns on identity. Run the agent as triage-bot first.{' '}
             <b>Predict before you run it:</b> what happens at the deploy step?
           </p>
           <p>
@@ -60,7 +60,7 @@ export function S14Lab2Go() {
           </>
         }
         commands={[
-          { cmd: './lab start 2 && ./lab run' },
+          { cmd: './lab start 2' },
           { cmd: './lab agent --as triage-bot' },
           { cmd: './lab agent --as release-bot' },
         ]}

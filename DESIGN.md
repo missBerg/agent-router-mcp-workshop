@@ -65,7 +65,7 @@ Maps to Gagné's events: ① gain attention ② inform objectives ③ recall pri
 | Clock | Min | Segment | Gagné | Notes |
 | --- | --- | --- | --- | --- |
 | 0:00 | 2 | Welcome; **"open your Codespace now"** (QR on screen) | ① | Codespace boots while we talk |
-| 0:02 | 5 | Hook: live demo, agent connected straight to 5 MCP servers → **200 tools, ~N k tokens before it thinks** | ① ③ | Ask: "How many of these does the job need?" |
+| 0:02 | 5 | Hook: live demo, agent connected straight to 5 MCP servers → **195 of 200 tools (5 names collide), ≈22k tokens before it thinks** | ① ③ | Ask: "How many of these does the job need?" |
 | 0:07 | 3 | Objectives, session map, Agent Router in one diagram | ② ④ | Agent → router → servers; where filtering / authz / telemetry happen |
 | 0:10 | 5 | **Lab 0** — Get set up & meet the agent | ⑤ ⑥ | `./lab doctor`, `./lab llm`, first agent run (direct, 200 tools) |
 | 0:15 | 17 | **Lab 1** — Aggregate & filter | ④–⑦ | Ends: agent completes the task via the router with 8 tools |
@@ -161,19 +161,19 @@ Attendees edit **one file**: `workspace/mcproute.yaml` (and, in Lab 3, `workspac
 ### Lab 0 — Get set up & meet the agent (5 min)
 
 - Open the Codespace (or local: `./lab setup`). `./lab doctor` shows green checks.
-- `./lab llm` picks a provider (OpenAI, Anthropic, Gemini, Ollama, any OpenAI-compatible endpoint) or `scripted`.
+- `./lab llm` picks a provider (`workshop` with the facilitator's key, OpenAI, Anthropic, Gemini, Ollama, any OpenAI-compatible endpoint) or `scripted`.
 - **Predict**: "The agent is connected straight to all five servers. How many tokens do the tool definitions cost before it reads your prompt?"
-- **Run**: `./lab agent --direct` → banner shows *200 tools from 5 servers · ≈N k tokens*. The task may still succeed — the point is the cost and the risk (it *could* call `deploy__delete_environment`).
+- **Run**: `./lab agent --direct` → banner shows *195 tools from 5 servers (200 offered) · ≈22.2k tokens* and warns about 5 name collisions. The task may still succeed — the point is the cost and the risk (it *could* call `deploy__delete_environment`).
 
 ### Lab 1 — Aggregate & filter (17 min) → LO1, LO2
 
 - **Predict**: "Two servers both have a `search` tool. What will the agent see when both sit behind one endpoint?"
-- **Run**: `./lab start 1 && ./lab run` — router in front of all 5 servers, no filtering. `./lab agent` now connects to **one** URL and sees 200 prefixed tools (`issues__search`, `docs__search`).
+- **Run**: `./lab start 1` — router in front of all 5 servers, no filtering. `./lab agent` now connects to **one** URL and sees 200 prefixed tools (`issues__search`, `docs__search`).
 - **Investigate**: `./lab tools` — count, prefixes, which servers they came from; spot the dangerous ones.
-- **Modify** (faded example): `issues` and `ci` already have a `toolSelector`; add `toolSelector.include` for `docs`, `deploy`, `chat` so exactly the 8 tools remain.
-- **Checkpoint**: `./lab check 1` → 8 tools exposed, none dangerous; `./lab agent` completes the task through the router; banner drops from ≈N k to ≈M tokens.
+- **Modify** (faded example): `issues` and `ci` already have a `toolSelector`, commented out — uncomment them; add `toolSelector.include` for `docs`, `deploy`, `chat` so exactly the 8 tools remain.
+- **Checkpoint**: `./lab check 1` → 8 tools exposed, none dangerous; `./lab agent` completes the task through the router; banner drops from ≈23.1k to ≈1k tokens.
 - **Stretch**: rewrite one selector with `includeRegex`; use `exclude` instead of `include` and argue which is safer (allow-list vs deny-list).
-- **Explore**: add the real GitHub MCP server as a 6th backend with the router injecting the token (`securityPolicy.apiKey`) — the agent never holds the credential; `prefixMode: Never`.
+- **Explore**: add the real GitHub MCP server as a 6th backend with the router injecting the token (`securityPolicy.apiKey`) — the agent never holds the credential. (`prefixMode: Never` arrives after v1.1.0, so the lab only mentions it.)
 
 ### Lab 2 — Authorize (18 min) → LO3
 
@@ -181,7 +181,7 @@ Attendees edit **one file**: `workspace/mcproute.yaml` (and, in Lab 3, `workspac
   - `triage-bot` — scopes `issues:read issues:write ci:read docs:read chat:write`
   - `release-bot` — the above plus `deploy:write`
 - **Predict**: "triage-bot runs the full task. What happens at the deploy step?"
-- **Run**: `./lab start 2 && ./lab run` → `./lab agent --as triage-bot`: `deploy__deploy` isn't even in its tool list (`tools/list` applies the same rules as `tools/call`); the agent reports it can't deploy. `./lab agent --as release-bot` deploys to staging.
+- **Run**: `./lab start 2` → `./lab agent --as triage-bot`: `deploy__deploy` isn't even in its tool list (`tools/list` applies the same rules as `tools/call`); the agent reports it can't deploy. `./lab agent --as release-bot` deploys to staging.
 - **Investigate**: call with no token → `401` with `WWW-Authenticate: … resource_metadata=…`; fetch `/.well-known/oauth-protected-resource/mcp` — the MCP authorization spec's discovery flow, served by the router.
 - **Modify**: add a rule that denies `deploy` when `environment == "production"` — for everyone (the runbook says production needs a human).
 - **Checkpoint**: `./lab check 2` → triage-bot sees no deploy tools; release-bot can deploy to staging; production deploy returns `403`. `./lab agent --as release-bot --task "Deploy checkout 1.4.3 to production"` is refused.
@@ -198,11 +198,11 @@ Attendees edit **one file**: `workspace/mcproute.yaml` (and, in Lab 3, `workspac
 ### Lab 3 — Observe (12 min) → LO4
 
 - **Predict**: "Which of these can you answer from the router alone: which agent called which tool? With what arguments? How long did it take? Was it allowed?"
-- **Run**: `./lab start 3 && ./lab run` (telemetry on) and `./lab otel` (otel-tui, in a second terminal). Run the agent as both bots.
-- **Investigate**: `./lab logs` — one line per MCP call: time, method, backend, tool, status, duration, session. In otel-tui: one trace per agent task → `tools/call <tool>` spans; the denied one has status `Error: authorization failed`.
+- **Run**: `./lab start 3` (telemetry on) and `./lab otel` (otel-tui, in a second terminal). Run the agent as both bots.
+- **Investigate**: `./lab logs` — one line per MCP call: time, method, backend, tool, status, duration, session. In otel-tui: one trace per agent run (`invoke_agent ship-it`) → an `execute_tool <tool>` span per call with the router's `CallTool` span inside; the denied one has status `Error: authorization failed`.
 - **Modify**: put identity into telemetry — `claimToHeaders` (`sub` → `x-agent-id`) plus `OTEL_AIGW_REQUEST_HEADER_ATTRIBUTES=x-agent-id:agent.id` in `workspace/telemetry.env`; switch to `AI_GATEWAY_TRACING_SEMCONV=gen_ai` and compare span names.
 - **Checkpoint**: `./lab check 3` asks the investigation questions ("Which agent tried to deploy to production? What did the span say?") and checks the answers against the recorded telemetry.
-- **Stretch**: `curl localhost:1064/metrics | grep mcp` — per-tool call counts and latency; group by `agent.id`.
+- **Stretch**: `curl localhost:1064/metrics | grep mcp` — call counts per backend, method and status, and latency; group by `agent_id`.
 - **Explore**: Phoenix / Jaeger / Grafana (upstream dashboard); turning on tool-argument capture and the privacy trade-off.
 
 ### Wrap-up — Bring your own agent (take-home)
@@ -221,7 +221,7 @@ v1.1.0). Shows "what works on your laptop deploys unchanged".
 | Path | Who | How |
 | --- | --- | --- |
 | **Codespaces** (recommended in-session) | Everyone, any OS | "Open in Codespaces" button / QR. Devcontainer uses a pre-built image (GHCR) with `aigw`, Envoy and otel-tui baked in (`npm ci` runs on create). LLM: a session-only key the facilitator hands out (`./lab llm workshop`; endpoint in `labs/workshop-llm.env`, key shown on the slide from an uncommitted `slides/.env.local`), BYO key, or the `scripted` brain. (GitHub Models, the original zero-key plan, was retired on 2026-07-30 — verified in a Codespace: `models.github.ai` answers every request with a bare `200 OK`.) |
-| **Local** | macOS arm64 / Linux, decent bandwidth | `./lab setup` downloads `aigw` v1.1.0 + Envoy + `npm ci`. Warned as ~330 MB |
+| **Local** | macOS arm64 / Linux, decent bandwidth | `./lab setup` downloads `aigw` v1.1.0 + otel-tui; Envoy follows on the first `./lab run`, and the `lab` wrapper runs `npm ci` on first use. Warned as ~330 MB |
 
 ## 8. Repository layout
 
@@ -252,10 +252,10 @@ takehome/kubernetes/       kind + Helm + the same MCPRoute
 
 | Command | What it does |
 | --- | --- |
-| `./lab setup` | Local only: download `aigw` + Envoy, `npm ci` |
+| `./lab setup` | Local only: download `aigw` + otel-tui (Envoy comes on the first `./lab run`) |
 | `./lab doctor` | Green/red checks: Node, aigw, Envoy cached, ports, LLM config |
 | `./lab llm [provider]` | Choose LLM provider; writes `.env` |
-| `./lab start <n>` | Copy lab `n` start config into `workspace/` (backs up the old one) |
+| `./lab start <n>` | Copy lab `n` start config into `workspace/` (backs up the old one), then `./lab run` |
 | `./lab run` | Start MCP servers if needed; assemble config; (re)start the router; wait healthy |
 | `./lab agent [--direct] [--as <bot>] [--task "…"]` | Run the sample agent |
 | `./lab tools [--as <bot>]` | List the tools the router exposes (to that identity) |
@@ -286,3 +286,4 @@ takehome/kubernetes/       kind + Helm + the same MCPRoute
 5. `aigw` release binaries are ~280 MB and there are no `darwin-amd64` / Windows builds.
 6. `mcp_initialization_duration_token_*`: the MCP initialization-duration histogram is registered with `metric.WithUnit("token")` (`internal/metrics/mcp_metrics.go`), so a duration metric carries a `_token` unit suffix.
 7. `toolSelector.includeRegex` matches anywhere in the tool name (Go `regexp.MatchString`), unlike the anchored feel of `include`; worth stating in the API docs.
+8. `aigw run` silently drops unknown fields (it converts with `runtime.DefaultUnstructuredConverter`), so a field from a newer release, such as `prefixMode`, does nothing instead of failing as it would under `kubectl`'s strict decoding. The lab linter flags these for now.

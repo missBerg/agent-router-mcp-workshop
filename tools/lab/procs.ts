@@ -41,6 +41,16 @@ function alive(pid: number | undefined): boolean {
   }
 }
 
+/** Is this PID (from .lab/) still the program we started? PIDs are reused, e.g. after a Codespace resumes. */
+function runs(pid: number, program: string): boolean {
+  if (!alive(pid)) return false;
+  try {
+    return execFileSync("ps", ["-o", "command=", "-p", String(pid)], { encoding: "utf8" }).includes(program);
+  } catch (e) {
+    return (e as NodeJS.ErrnoException).code === "ENOENT"; // no ps on this machine: trust the PID file
+  }
+}
+
 function killGroup(pid: number) {
   // Children (Envoy, the MCP servers) share the process group we created.
   for (const target of [-pid, pid]) {
@@ -89,7 +99,7 @@ export async function startServers(): Promise<{ started: boolean }> {
 
 export async function stopServers(): Promise<boolean> {
   const pid = fs.existsSync(SERVERS_PID) ? Number(fs.readFileSync(SERVERS_PID, "utf8")) : 0;
-  if (!alive(pid)) return false;
+  if (!runs(pid, "servers/index.ts")) return (fs.rmSync(SERVERS_PID, { force: true }), false);
   killGroup(pid);
   fs.rmSync(SERVERS_PID, { force: true });
   return true;
@@ -144,7 +154,7 @@ export function envoyCached(): boolean {
 export async function stopRouter(): Promise<boolean> {
   const s = readRouterState();
   let stopped = false;
-  if (s && alive(s.pid)) {
+  if (s && runs(s.pid, "aigw")) {
     killGroup(s.pid);
     stopped = true;
   }

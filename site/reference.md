@@ -9,7 +9,7 @@ Everything from the labs on one page. `./lab help` prints the command list in yo
 | Command | What it does |
 | --- | --- |
 | `./lab doctor` | Checks that everything is ready: Node.js, npm packages, `aigw`, Envoy, otel-tui, free ports, LLM. |
-| `./lab llm [provider]` | Chooses the agent's LLM: `github`, `openai`, `anthropic`, `gemini`, `ollama`, `custom` or `scripted`. Saves to `.env` and sends a test request. |
+| `./lab llm [provider]` | Chooses the agent's LLM: `workshop`, `openai`, `anthropic`, `gemini`, `ollama`, `custom` or `scripted`. Saves to `.env` and sends a test request. |
 | `./lab setup` | Local machines only: downloads `aigw` v1.1.0 (~280 MB) and otel-tui. |
 
 ### Do the labs
@@ -113,7 +113,6 @@ spec:
         # excludeRegex: ["delete"]   #   regex to remove
       # securityPolicy:              # credentials the router adds toward this server
       #   apiKey: { secretRef: { name: github-token } }
-      # prefixMode: Never            # keep the server's names unprefixed
   securityPolicy:
     oauth:                           # Lab 2: authentication
       issuer: https://auth.lakeshore.example

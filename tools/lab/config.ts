@@ -83,10 +83,13 @@ export interface Finding {
   fix?: string;
 }
 
-const SPEC_KEYS = ["parentRefs", "path", "headers", "hostnames", "backendRefs", "securityPolicy", "backendTrafficPolicy", "backendSelector", "prefixMode"];
-const BACKEND_REF_KEYS = ["name", "kind", "group", "namespace", "port", "weight", "path", "toolSelector", "promptSelector", "securityPolicy", "forwardHeaders", "prefixMode"];
+// MCPRoute fields as of aigw v1.1.0. aigw run drops unknown fields silently, so anything else must be flagged here.
+const SPEC_KEYS = ["parentRefs", "path", "headers", "hostnames", "backendRefs", "securityPolicy", "backendSelector"];
+const BACKEND_REF_KEYS = ["name", "kind", "group", "namespace", "port", "path", "toolSelector", "securityPolicy", "forwardHeaders"];
 const SELECTOR_KEYS = ["include", "includeRegex", "exclude", "excludeRegex"];
-const SECURITY_KEYS = ["oauth", "apiKeyAuth", "extAuth", "authorization", "mergeType"];
+const SECURITY_KEYS = ["oauth", "apiKeyAuth", "extAuth", "authorization"];
+/** In upstream releases newer than the workshop's pinned aigw v1.1.0. */
+const NEWER_THAN_PINNED = ["prefixMode", "backendTrafficPolicy", "promptSelector", "mergeType"];
 const RULE_KEYS = ["source", "target", "cel", "action"];
 const KNOWN_SCOPES = ["issues:read", "issues:write", "ci:read", "docs:read", "chat:write", "deploy:write"];
 
@@ -153,7 +156,7 @@ export function lint(text: string, catalog: Record<string, string[]>): Finding[]
     }
     const tools = catalog[name] ?? [];
     const selector = ref.get("toolSelector", true);
-    exposed[name] = new Set(tools);
+    if (name in catalog) exposed[name] = new Set(tools);
     if (selector === undefined || selector === null) continue;
     if (!isMap(selector)) {
       err(selector as Node, `toolSelector for "${name}" must be a mapping`, "e.g.\n      toolSelector:\n        include: [search_docs]");
@@ -162,6 +165,9 @@ export function lint(text: string, catalog: Record<string, string[]>): Finding[]
     unknownKeys(selector, SELECTOR_KEYS, `toolSelector of "${name}"`, err);
     if (selector.has("include") && selector.has("includeRegex")) err(selector, `toolSelector for "${name}" has both include and includeRegex`, "Use one or the other.");
     if (selector.has("exclude") && selector.has("excludeRegex")) err(selector, `toolSelector for "${name}" has both exclude and excludeRegex`, "Use one or the other.");
+    // A backend you added yourself (e.g. GitHub in the Lab 1 Explore): its tools aren't in
+    // the catalog, so only the selector's shape is checked.
+    if (!(name in catalog)) continue;
     let allowed = new Set(tools);
     for (const key of SELECTOR_KEYS) {
       const node = selector.get(key, true);
@@ -319,7 +325,9 @@ function lintRules(
 function unknownKeys(map: import("yaml").YAMLMap, known: string[], where: string, err: (n: Node | null | undefined, m: string, f?: string) => void) {
   for (const pair of map.items) {
     const key = isScalar(pair.key) ? String(pair.key.value) : "";
-    if (!known.includes(key)) {
+    if (!known.includes(key) && NEWER_THAN_PINNED.includes(key)) {
+      err(pair.key as Node, `"${key}" is not available in Agent Router v1.1.0, which this workshop uses`, "It was added in a later release; v1.1.0 would silently ignore it. Remove it.");
+    } else if (!known.includes(key)) {
       const s = closest(key, known);
       const misplaced =
         key === "toolSelector" ? " toolSelector belongs inside a backendRef (indented under its `- name:`)." : key === "claimToHeaders" ? " claimToHeaders belongs inside securityPolicy.oauth." : "";

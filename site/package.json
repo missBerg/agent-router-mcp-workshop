@@ -1,6 +1,7 @@
 {
   "name": "agent-router-mcp-workshop-site",
   "private": true,
+  "license": "Apache-2.0",
   "type": "module",
   "scripts": {
     "dev": "vitepress dev",

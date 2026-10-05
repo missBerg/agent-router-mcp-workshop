@@ -1,6 +1,7 @@
 // `./lab llm [provider]` — choose the model the sample agent uses, and test it.
 import { PROVIDERS, writeEnvFile, resolveLlm, type Provider, type LlmConfig } from "./env.ts";
 import { c, ok, fail, warn, hint, ask, title, spin, cmd } from "./ui.ts";
+import { routerRunning } from "./procs.ts";
 
 export async function chooseLlm(arg?: string): Promise<boolean> {
   title("Choose the LLM for the sample agent");
@@ -47,6 +48,8 @@ export async function chooseLlm(arg?: string): Promise<boolean> {
   const result = await spin(`Testing ${llm.model} at ${llm.baseUrl}`, () => testLlm(llm));
   if (result.ok) {
     ok(`The model answered in ${result.ms} ms${result.toolCalls ? " and called the test tool — tool calling works." : "."}`);
+    // The running router holds the LLM route (provider + key) it was started with.
+    if ((await routerRunning())?.llm) warn(`The router still uses your previous LLM settings. Run ${cmd("./lab run")} to switch it over.`);
     hint(`Changed your mind? ${cmd("./lab llm")} again — or ${cmd("./lab llm scripted")} to run without an LLM.`);
     return true;
   }

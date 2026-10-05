@@ -25,10 +25,12 @@ Attendees without their own key run `./lab llm workshop` and paste a key you han
 3. **Put it on the slide, not in git:** on the presenting laptop create `slides/.env.local` with
    `VITE_WORKSHOP_LLM_KEY=…` and present from `npm run dev` (or `npm run build && npm run preview`).
    The public Pages deck shows "the key we hand out" instead.
-4. **Rehearse:** `./lab llm workshop`, paste the key, then `./lab start 1 && ./lab solution 1 && ./lab agent`
+4. **Rehearse:** `./lab llm workshop`, paste the key, then `./lab solution 1 && ./lab agent`
    — the agent should finish the task with the LLM brain.
 5. **Revoke the key(s) right after the session.** People finishing at home use their own key or
-   `./lab llm scripted`.
+   `./lab llm scripted`. Then comment out `WORKSHOP_LLM_BASE_URL` in `labs/workshop-llm.env` and push:
+   `./lab llm` stops offering (and defaulting to) the in-room option, so self-paced learners aren't
+   steered to a dead key.
 
 ## In the room, before doors open
 
@@ -42,15 +44,15 @@ Attendees without their own key run `./lab llm workshop` and paste a key you han
 | Clock | Min | Slide(s) | What happens | Say / do |
 | --- | --- | --- | --- | --- |
 | 0:00 | 2 | 1–2 | Welcome, **open your Codespace now** | "Scan the QR, click *Create codespace*, and let it boot while I talk. No Codespace? `./lab setup` on macOS arm64/Linux." |
-| 0:02 | 5 | 3–6 | Hook + live demo | `./lab agent --direct --list`, then `./lab agent --direct`. Point at **200 tools · ≈N k tokens**. If the model API rejects 200 tools, celebrate it: "the API refused before the agent even started — that's the problem." |
+| 0:02 | 5 | 3–6 | Hook + live demo | `./lab agent --direct --list`, then `./lab agent --direct`. Point at **195 tools (200 offered) · ≈22k tokens** and the 5 name collisions. If the model API rejects 195 tools, celebrate it: "the API refused before the agent even started — that's the problem." |
 | 0:07 | 3 | 7–9 | Objectives, how labs work, Agent Router in one picture | Stress: *go at your own pace*, `./lab check N` gives feedback, `./lab solution N` catches you up any time. |
 | 0:10 | 5 | 10 | **Lab 0** — set up & meet the agent | Walk the room. Most common blocker: LLM choice → "no key? `./lab llm workshop` and paste the key on the slide (or `./lab llm scripted`)". |
 | 0:15 | 17 | 10 | **Lab 1** — Aggregate & filter | At 0:22 do a quick show of hands: "who has the router running?" At 0:28: "two minutes to the checkpoint". |
-| 0:32 | 4 | 11–12 | Debrief 1 → concept: identity & authorization | Ask one person what their tool count went from/to. **Sync point:** "Not at the checkpoint? `./lab solution 1` and come with us." |
-| 0:36 | 18 | 13 | **Lab 2** — Authorize | Watch for the classic: the deny rule placed *after* the allow rule — `./lab run` flags it. |
-| 0:54 | 3 | 14–15 | Debrief 2 (deny-first) → concept: what to observe | **Sync point:** `./lab solution 2`. |
-| 0:57 | 12 | 16 | **Lab 3** — Observe | Remind them: *two terminals* — `./lab otel` in one, the agent in the other. |
-| 1:09 | 6 | 17–19 | Recall, take-home, thank you | Retrieval questions out loud before revealing answers. Point at **Bring your own agent** and the **Kubernetes take-home**. Feedback QR. |
+| 0:32 | 4 | 11–13 | Debrief 1 → concept: identity & authorization | Ask one person what their tool count went from/to. **Sync point:** "Not at the checkpoint? `./lab solution 1` and come with us." |
+| 0:36 | 18 | 14 | **Lab 2** — Authorize | Watch for the classic: the deny rule placed *after* the allow rule — `./lab run` flags it. |
+| 0:54 | 3 | 15–16 | Debrief 2 (deny-first) → concept: what to observe | **Sync point:** `./lab solution 2`. |
+| 0:57 | 12 | 17 | **Lab 3** — Observe | Remind them: *two terminals* — `./lab otel` in one, the agent in the other. |
+| 1:09 | 6 | 18–20 | Recall, take-home, thank you | Retrieval questions out loud before revealing answers. Point at **Bring your own agent** and the **Kubernetes take-home**. Feedback QR. |
 
 **If you are running late:** shorten the hook demo (skip `--list`), cut debriefs to one slide each,
 and make Lab 3 a guided demo on your screen while attendees follow along. Never cut the

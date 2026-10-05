@@ -54,10 +54,10 @@ Keep `./lab logs -f` running in a second terminal while your agent works. In Lab
 The router listens inside the Codespace. You have two options:
 
 1. **Run your agent's CLI inside the Codespace** (Claude Code, Codex, Gemini CLI, Goose). Use `http://localhost:1975/mcp`, exactly as below. This is the simplest and safest option.
-2. **Connect from your laptop.** In the **PORTS** tab, right-click port 1975 → **Port Visibility** → **Public**. `./lab connect` then prints the public URL, `https://<codespace-name>-1975.app.github.dev/mcp`.
+2. **Connect from your laptop.** With the [GitHub CLI](https://cli.github.com) on your laptop, forward the port there: `gh codespace ports forward 1975:1975` (pick your Codespace when asked). Then use `http://localhost:1975/mcp` on your laptop too. The port stays private to you.
 
-::: warning A public port is public
-Anyone with the URL can reach your router. From Lab 2 on it requires a token, but the workshop's signing key is public, so anyone can mint one. With the Lab 1 config, there's no token at all. Set the port back to **Private** when you're done.
+::: warning Don't make port 1975 Public
+A Public port lets anyone with the URL reach your router, and port 1975 also proxies your LLM, using your API key (or the workshop key). The MCP route is no protection either: Lab 1 has no token at all, and from Lab 2 on anyone can mint one with the workshop's public signing key.
 :::
 
 ## Client configuration

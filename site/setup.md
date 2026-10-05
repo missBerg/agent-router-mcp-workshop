@@ -158,7 +158,7 @@ With a real LLM, the `brain` line names your model and the tool calls may differ
    ```
 
    Look for the tools marked ⚠: `delete_environment`, `scale_to_zero`, `rollback`. The agent could call any of them. (The workshop servers only pretend. Yours wouldn't.)
-4. **The hard limit.** Did you pick an OpenAI-family model (`github`, `openai`)? Then the run may have stopped with: *"The model API refused the request: 195 tools is more than this provider accepts (OpenAI's limit is 128)."* That's the point of this workshop. Lab 1 fixes it.
+4. **The hard limit.** Did you pick an OpenAI-family model (`workshop`, `openai`)? Then the run may have stopped with: *"The model API refused the request: 195 tools is more than this provider accepts (OpenAI's limit is 128)."* That's the point of this workshop. Lab 1 fixes it.
 :::
 
 :::: reflect

@@ -110,3 +110,19 @@ test("an Allow rule using optional argument access still warns about tools/list"
   const w = lint(sol, catalog).filter((f) => f.level === "warning").map((f) => f.message);
   assert.ok(w.some((m) => /hides the tool from tools\/list/.test(m)), w.join("\n"));
 });
+
+test("a backend you add yourself (Lab 1 Explore) only has its selector's shape checked", () => {
+  const y =
+    read(1, "solution.yaml").replace(
+      "        include: [post_message]",
+      "        include: [post_message]\n    - name: github\n      kind: Backend\n      group: gateway.envoyproxy.io\n      path: /mcp/x/issues/readonly\n      toolSelector:\n        include: [list_issues, issue_read]",
+    ) +
+    "\n---\napiVersion: gateway.envoyproxy.io/v1alpha1\nkind: Backend\nmetadata:\n  name: github\n  namespace: default\nspec:\n  endpoints:\n    - fqdn:\n        hostname: api.githubcopilot.com\n        port: 443\n";
+  assert.match(y, /- name: github/);
+  assert.deepEqual(errors(y), []);
+});
+
+test("fields newer than the pinned aigw v1.1.0 are flagged, not silently ignored", () => {
+  const [e] = errors(read(1, "solution.yaml").replace("        include: [search_docs]", "        include: [search_docs]\n      prefixMode: Never"));
+  assert.match(e.message, /"prefixMode" is not available in Agent Router v1\.1\.0/);
+});

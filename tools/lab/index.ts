@@ -4,7 +4,7 @@ import path from "node:path";
 import { spawnSync } from "node:child_process";
 import * as P from "./paths.ts";
 import { c, ok, fail, warn, info, hint, title, spin, nextSteps, cmd, ask } from "./ui.ts";
-import { parseEnvFile, resolveLlm } from "./env.ts";
+import { parseEnvFile, resolveLlm, PROVIDERS } from "./env.ts";
 import {
   startServers, stopServers, serversHealthy, startRouter, stopRouter, routerRunning, findAigw, envoyCached, RouterStartError,
 } from "./procs.ts";
@@ -251,11 +251,13 @@ async function connect(args: string[]): Promise<boolean> {
   const needsToken = router ? (await listTools()).ok === false : true;
   const tok = await personaToken(who);
   const cs = process.env.CODESPACES === "true" && process.env.CODESPACE_NAME;
-  const url = cs ? `https://${process.env.CODESPACE_NAME}-1975.${process.env.GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN ?? "app.github.dev"}/mcp` : P.MCP_URL;
+  // Same URL inside the Codespace and on a laptop that forwards the port, so 1975 never has
+  // to be Public (it also serves the LLM route, which spends the router's API key).
+  const url = P.MCP_URL;
   const authHeader = needsToken ? `Authorization: Bearer ${tok}` : null;
   title(`Connect your own agent to Agent Router${needsToken ? ` (as ${who})` : ""}`);
   console.log(`  MCP endpoint (Streamable HTTP): ${c.bold(url)}`);
-  if (cs) hint("From your laptop: in the Codespace's PORTS tab, right-click port 1975 → Port Visibility → Public. Or run your agent CLI inside the Codespace and use http://localhost:1975/mcp.");
+  if (cs) hint(`From your laptop: run ${cmd(`gh codespace ports forward 1975:1975 -c ${cs}`)} there and use the same URL. Don't make port 1975 Public — it also proxies your LLM API key.`);
   if (authHeader) console.log(`  Header: ${c.dim(authHeader.slice(0, 60))}…  ${c.dim("(full token: ./lab token " + who + ")")}`);
 
   const hdr = authHeader ? ` --header "Authorization: Bearer $(./lab token ${who})"` : "";
@@ -319,7 +321,7 @@ function help() {
   console.log(`\n${c.bold(c.orange("▌"))} ${c.bold("./lab")} — the workshop helper  ${c.dim("(Agent Router MCP workshop)")}\n`);
   console.log(c.bold("Get set up"));
   row("./lab doctor", "check that everything is ready");
-  row("./lab llm [provider]", "choose the agent's LLM (github, openai, anthropic, gemini, ollama, custom, scripted)");
+  row("./lab llm [provider]", `choose the agent's LLM (${PROVIDERS.map((p) => p.id).join(", ")})`);
   row("./lab setup", "local machines only: download aigw + otel-tui");
   console.log(c.bold("\nDo the labs"));
   row("./lab start <1|2|3>", "copy a lab's starting config to workspace/ and start the router");
@@ -369,11 +371,12 @@ async function main(): Promise<boolean> {
     case "token":
       return token(args);
     case "logs":
-      return showLogs({ follow: args.includes("-f") || args.includes("--follow"), all: args.includes("--all"), raw: args.includes("--raw") }), true;
+      await showLogs({ follow: args.includes("-f") || args.includes("--follow"), all: args.includes("--all"), raw: args.includes("--raw") });
+      return true;
     case "otel":
       return otel();
     case "check": {
-      const n = labNumber(args[0] ?? String(currentLab() ?? ""));
+      const n = labNumber(args.find((a) => !a.startsWith("-")) ?? String(currentLab() ?? ""));
       if (!n) return false;
       const r = n === 1 ? await checkLab1() : n === 2 ? await checkLab2() : await checkLab3({ quiz: !args.includes("--no-quiz") });
       return r.passed;
@@ -400,6 +403,7 @@ async function main(): Promise<boolean> {
 main()
   .then((success) => process.exit(success ? 0 : 1))
   .catch((e) => {
-    fail((e as Error).stack ?? String(e));
+    // Attendees see the message; LAB_DEBUG=1 brings back the stack for whoever is debugging.
+    fail(process.env.LAB_DEBUG ? ((e as Error).stack ?? String(e)) : ((e as Error).message ?? String(e)));
     process.exit(1);
   });

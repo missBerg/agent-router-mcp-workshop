@@ -357,7 +357,7 @@ $ ./lab check 2
     issues__get_issue ×2, ci__list_pipeline_runs ×2, ci__get_job_logs ×2, docs__search_docs ×2, issues__add_comment ×2, deploy__deploy, deploy__get_deployment_status ×2, chat__post_message ×2
 
 ✓ Lab 2 checkpoint reached. Nice work!
-  → Stretch: only let an identity deploy its own team's service (claim "team"); mint one with ./lab token --sub payments-bot --scopes deploy:write --claim team=payments
+  → Stretch: only let an identity deploy its own team's service (claim "team"); mint one with ./lab token --sub payments-bot --scopes "issues:read issues:write ci:read docs:read chat:write deploy:write" --claim team=payments
   → Ready? ./lab start 3 for Lab 3 — Observe
 ```
 

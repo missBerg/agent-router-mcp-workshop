@@ -35,7 +35,7 @@ export function S17Lab3Go() {
           ]}
         >
           <p>
-            Last lab. <code>./lab start 3 && ./lab run</code> turns telemetry on. Open <code>./lab otel</code> in a
+            Last lab. <code>./lab start 3</code> turns telemetry on. Open <code>./lab otel</code> in a
             second terminal for traces, and <code>./lab logs</code> for the access log.
           </p>
           <p>
@@ -60,7 +60,7 @@ export function S17Lab3Go() {
           </>
         }
         commands={[
-          { cmd: './lab start 3 && ./lab run' },
+          { cmd: './lab start 3' },
           { cmd: './lab otel', note: 'second terminal' },
           { cmd: './lab logs' },
         ]}

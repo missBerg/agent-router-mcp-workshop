@@ -18,7 +18,7 @@ export function S05Demo() {
               as a fallback.
             </>,
             <>
-              Run <code>./lab agent --direct</code>. Point at the banner: <i>200 tools from 5 servers · ≈N k tokens</i>.
+              Run <code>./lab agent --direct</code>. Point at the banner: <i>195 tools from 5 servers (200 offered) · ≈22.2k tokens</i>, plus 5 name collisions.
               Read the token number out loud and ask people to remember it; we compare after Lab 1.
             </>,
             <>

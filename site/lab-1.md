@@ -387,7 +387,7 @@ stringData:
 
 Then `export GITHUB_MCP_TOKEN=<a fine-grained personal access token>` and run `./lab run`. It warns about the `$` in the file; here it's intended. The agent sees `github__list_issues` and `github__issue_read`, and never the token.
 
-Next, try `prefixMode: Never` on that backend. Its tools then keep their original names (`list_issues`). That's handy when a client expects native names, but you give up the protection against name collisions.
+Agent Router v1.1.0, used here, always prefixes. Later releases add `prefixMode: Never` to keep a backend's original names (`list_issues`). That's handy when a client expects native names, but you give up the protection against name collisions.
 
 This variant is not part of the tested lab path. See the [Agent Router MCP docs](https://theagentrouter.ai/docs/capabilities/mcp/) for backend security policies and tool filtering.
 :::

@@ -111,11 +111,11 @@ src/
   components/         DeckSlide (frame + footer), SpeakerNotes, Code (YAML), Terminal, QR, LabGo
   slides/S01…S20      one file per slide, notes included
   styles/
-    brand-tokens.css  vendored Agent Router tokens (theagentrouter/brand-assets); do not edit
-    brand-pattern.css vendored A-pattern texture; do not edit
+    brand-tokens.css  vendored Agent Router tokens (theagentrouter/agent-router site/src/css/brand/, Apache-2.0); do not edit
+    brand-pattern.css vendored A-pattern texture (same source); do not edit
     deck.css          frame, typography, cards, code, terminal, QR, presenter-notes styles
     slides.css        per-slide layout
-  assets/             logos copied from the Agent Router site (see below)
+  assets/             logos copied from the Agent Router site (theagentrouter/agent-router site/static/img/brand/)
 ```
 
 Authoring rules the deck follows, worth keeping when you edit:
