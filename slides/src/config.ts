@@ -51,7 +51,7 @@ export const SPEAKER = {
   org: 'Tetrate',
   role: 'Maintainer-track contributor, Agent Router',
   /** Shown on the thank-you slide, as typed: keep them short. */
-  contacts: ['linkedin.com/in/ericahughberg', 'github.com/missBerg'],
+  contacts: ['linkedin.com/in/ericahughberg', 'github.com/missBerg', 'erica.hughberg@tetrate.io'],
 }
 export const EVENT = 'MCP Dev Summit Toronto'
 export const EVENT_DATE = 'October 2026'
