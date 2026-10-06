@@ -69,7 +69,7 @@ from these values, so changing a URL updates the text and the QR together.
 | `REPO_URL` | slide 20 | |
 | `FEEDBACK_URL` | slide 19 | **Placeholder.** While empty, slide 19 shows a dashed "Set FEEDBACK_URL" box instead of a QR |
 | `LAB_PAGES` | QR codes on the three "your turn" slides (10, 14, 17) | **Must match the lab site's routes** |
-| `SPEAKER.contacts` | slide 20 | **Placeholder** handles |
+| `SPEAKER.contacts` | slide 20 | LinkedIn, GitHub and email, shown as typed |
 | `WORKSHOP_LLM_KEY` | slide 10 (the Lab 0/1 slide) | **Never committed.** Read from `VITE_WORKSHOP_LLM_KEY` in `slides/.env.local` (git-ignored). Empty → the slide says "the key we hand out". See `facilitator/run-of-show.md` → Workshop LLM keys |
 | `AGENT_ROUTER_VERSION`, `EVENT`, `EVENT_DATE` | title, take-home | |
 
