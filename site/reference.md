@@ -58,6 +58,9 @@ Everything from the labs on one page. `./lab help` prints the command list in yo
 | `.lab/router.log` | The router's own output. Look here when it fails to start. |
 | `.lab/backups/` | Your previous versions, saved by `./lab start` and `./lab solution`. |
 | `.env` | Your LLM choice. Git ignores it. |
+| `.agents/skills/` | Agent skills for your coding agent: the lab partner and the three building blocks. `.claude/skills/` links to them. See [Your coding agent](./coding-agent). |
+| `AGENTS.md`, `CLAUDE.md` | Orientation for coding agents that open the repository. |
+| `.mcp.json`, `.vscode/mcp.json` | The Envoy docs MCP server, for Claude Code and VS Code. |
 
 ## Ports
 
@@ -212,4 +215,5 @@ From `curl -s localhost:1064/metrics | grep mcp_`:
 - [MCP gateway docs](https://theagentrouter.ai/docs/capabilities/mcp/) · [`aigw run`](https://theagentrouter.ai/docs/cli/aigwrun/)
 - Observability: [tracing](https://theagentrouter.ai/docs/capabilities/observability/tracing) · [metrics](https://theagentrouter.ai/docs/capabilities/observability/metrics) · [access logs](https://theagentrouter.ai/docs/capabilities/observability/accesslogs)
 - [MCP authorization specification](https://modelcontextprotocol.io/specification/2025-06-18/basic/authorization)
+- Envoy docs MCP server, for your coding agent: `https://envoy-gateway.mcp.kapa.ai` ([setup](./coding-agent#add-the-envoy-docs-mcp-server))
 - This workshop: [repository](https://github.com/missBerg/agent-router-mcp-workshop) · [slides](https://missberg.github.io/agent-router-mcp-workshop/slides/) · [open in Codespaces](https://codespaces.new/missBerg/agent-router-mcp-workshop?quickstart=1)

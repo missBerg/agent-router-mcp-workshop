@@ -56,6 +56,7 @@ export default defineConfig({
         items: [
           { text: "Start here", link: "/" },
           { text: "Lab 0 · Set up & meet the agent", link: "/setup" },
+          { text: "Optional · Your coding agent", link: "/coding-agent" },
           { text: "Lab 1 · Aggregate & filter", link: "/lab-1" },
           { text: "Lab 2 · Authorize", link: "/lab-2" },
           { text: "Lab 3 · Observe", link: "/lab-3" },

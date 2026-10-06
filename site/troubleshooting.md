@@ -60,7 +60,16 @@ Find your symptom, try the fix. If you're stuck in a lab and short on time, `./l
 | Symptom | Likely cause | Fix |
 | --- | --- | --- |
 | Your client gets 401 | No token, an expired token, or the header isn't sent | Check the header is exactly `Authorization: Bearer <token>`, and mint a fresh token. |
-| Your laptop can't reach the router in a Codespace | Codespace ports are private by default | Run the client inside the Codespace, or make port 1975 public in the **PORTS** tab. See [Bring your own agent](./byo-agent#running-in-a-codespace). |
+| Your laptop can't reach the router in a Codespace | The router listens inside the Codespace | Run the client inside the Codespace, or forward the port to your laptop with `gh codespace ports forward 1975:1975`. Don't make port 1975 public: it also proxies your LLM key. See [Bring your own agent](./byo-agent#running-in-a-codespace). |
+
+## Your coding agent
+
+| Symptom | Likely cause | Fix |
+| --- | --- | --- |
+| The agent doesn't know about the labs or the skills | It was started outside the workshop folder, or it doesn't read [agent skills](https://agentskills.io) | Start it in the workshop folder. Claude Code reads `.claude/skills/`; Copilot, Codex, Cursor and Gemini CLI read `.agents/skills/`. In Claude Code, `/agent-router-lab-partner` loads the lab partner by name. |
+| The agent won't edit `workspace/mcproute.yaml` | On purpose: in the labs it's a lab partner, not the author | Ask for the next hint, or say outright that you want it to make the change. To catch up, run `./lab solution N`. |
+| The docs server's sign-in never finishes in a Codespace | Terminal agents finish the sign-in on `localhost` in the Codespace, which your laptop's browser can't reach | Skip the docs server; the skills cover everything the labs need. |
+| The agent suggests `prefixMode` (or another field) and nothing changes | The field is newer than the workshop's Agent Router v1.1.0, and `aigw run` ignores unknown fields | `./lab run` flags these. Remove the field. The docs server also returns newer docs; the v1.1.0 ones are under `theagentrouter.ai/docs/1.1/`. |
 
 ## Still stuck?
 

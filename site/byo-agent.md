@@ -75,7 +75,7 @@ Run it from the workshop folder so `./lab token` works. Check with `claude mcp l
 
 ### VS Code (GitHub Copilot agent mode)
 
-Create `.vscode/mcp.json`. The `inputs` entry makes VS Code ask for the token once and store it, so it never sits in the file:
+The workshop folder already has a `.vscode/mcp.json` with the Envoy docs server (see [Your coding agent](./coding-agent)). Add the `inputs` list and the `ship-it` server to it. The `inputs` entry makes VS Code ask for the token once and store it, so it never sits in the file:
 
 ```json
 {
@@ -88,6 +88,10 @@ Create `.vscode/mcp.json`. The `inputs` entry makes VS Code ask for the token on
     }
   ],
   "servers": {
+    "envoy-docs": {
+      "type": "http",
+      "url": "https://envoy-gateway.mcp.kapa.ai"
+    },
     "ship-it": {
       "type": "http",
       "url": "http://localhost:1975/mcp",
@@ -198,6 +202,35 @@ The labs ran on Lakeshore's servers. Here is the same path for yours. Work throu
 4. **Add identities and rules.** Connect `securityPolicy.oauth` to your real identity provider, start with `defaultAction: Deny`, and map scopes to tools, like Lab 2. Use deny-first rules for argument conditions such as "never production". Keep backend credentials in the router (`securityPolicy.apiKey` on a backend), never in the agent.
 5. **Turn on telemetry.** Copy the identity into a header with `claimToHeaders`, map it with `OTEL_AIGW_REQUEST_HEADER_ATTRIBUTES`, and send traces to the backend you already use, like Lab 3. Decide up front whether tool arguments may be recorded.
 6. **Run it where your agents run.** The same `MCPRoute` works in Kubernetes: see the [Kubernetes take-home](./kubernetes).
+
+### Build it with your agent
+
+In the labs your coding agent was a lab partner. Here it can be the builder: it writes the config, and you review it with what you learned. The skills in this repository's `.agents/skills/` carry the building blocks. To use them in your own project, copy the three `agent-router-*` building-block folders into that project's `.agents/skills/` (or `.claude/skills/` for Claude Code). Their *In the workshop* sections only apply here. The Envoy docs MCP server from [Your coding agent](./coding-agent) helps with anything they don't cover.
+
+A prompt to start from:
+
+```text
+Help me put my MCP servers behind Agent Router <your aigw version>.
+Use the agent-router-aggregate-filter, agent-router-authorize and
+agent-router-observe skills.
+
+My agent: <what it does>.
+Its MCP servers: <name, URL, how it authenticates>, …
+
+Before you write any toolSelector, ask me which tools the job needs.
+Then write one MCPRoute with filtering, authorization (deny by default)
+and identity in telemetry, and go through each skill's review checklist with me.
+```
+
+Before you run what it wrote, review it. This is where the labs pay off:
+
+- [ ] Every backend has a `toolSelector.include` (or an anchored `includeRegex`) built from the task, with the server's own tool names, no `backend__` prefix.
+- [ ] `defaultAction: Deny`. Argument conditions are **Deny** rules **above** the Allow rule, and their CEL uses `.?…orValue(…)`.
+- [ ] Credentials toward servers sit in the router (`securityPolicy.apiKey`), never in the agent's config, and no real secret is in the file.
+- [ ] The identity reaches the telemetry (`claimToHeaders` **and** `OTEL_AIGW_REQUEST_HEADER_ATTRIBUTES`). Tool arguments aren't recorded unless you decided they should be.
+- [ ] Every field exists in your `aigw` version. `aigw run` ignores unknown fields without a word; under Kubernetes, `kubectl apply --dry-run=server` rejects them.
+
+Then test it the way the labs did: list the tools as each identity, make a call that should be refused, and find that refusal in your telemetry.
 
 Questions to take back to your team:
 

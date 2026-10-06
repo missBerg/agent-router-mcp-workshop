@@ -314,6 +314,10 @@ Pick one or both.
 
 `./lab check 1` fails while you experiment, because the router no longer exposes exactly 8 tools. Put `include` back, or run `./lab solution 1`, before Lab 2.
 
+::: tip Ask your coding agent (optional)
+*"Write an includeRegex for the deploy backend that keeps only deploy and get_deployment_status."* Before you trust it, put it in your file, `./lab run`, and count the deploy tools in `./lab tools`. Is it anchored? An unanchored regex lets `list_deployments` through. [Set up your agent](./coding-agent).
+:::
+
 ::: details One answer
 ```yaml
     - name: deploy

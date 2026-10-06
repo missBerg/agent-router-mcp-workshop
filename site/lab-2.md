@@ -226,6 +226,8 @@ $ ./lab agent --as release-bot
 
    This is the discovery flow from the [MCP authorization specification](https://modelcontextprotocol.io/specification/2025-06-18/basic/authorization) (OAuth 2.0 Protected Resource Metadata). A real MCP client reads `authorization_servers`, runs an OAuth login there, and comes back with a token. In this workshop, `./lab token` stands in for that authorization server. No `jq`? Drop `| jq`.
 
+   Did you connect the Envoy docs MCP server from [Your coding agent](./coding-agent)? Its sign-in went exactly this way: `401`, then `resource_metadata`, then a login at its authorization server. See for yourself: `curl -si -X POST https://envoy-gateway.mcp.kapa.ai | head -3`.
+
 3. **Is the runbook enforced?** Lakeshore's release runbook says: *staging first; production deploys require a human approval.* Run the checkpoint and find out:
 
    ```bash
