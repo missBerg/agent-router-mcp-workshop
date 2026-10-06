@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "envoy-docs": {
+      "type": "http",
+      "url": "https://envoy-gateway.mcp.kapa.ai"
+    }
+  }
+}

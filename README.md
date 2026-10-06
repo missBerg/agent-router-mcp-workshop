@@ -42,6 +42,11 @@ git clone https://github.com/missBerg/agent-router-mcp-workshop && cd agent-rout
 Then follow the [lab guide](https://missberg.github.io/agent-router-mcp-workshop/). Everything
 runs through one helper — `./lab help` lists its commands.
 
+**Using a coding agent?** Open it in this folder. The repository's [agent skills](.agents/skills/)
+make Claude Code, GitHub Copilot, Codex, Cursor or Gemini CLI a lab partner that coaches you
+through the labs instead of writing the config for you. See
+[Your coding agent](https://missberg.github.io/agent-router-mcp-workshop/coding-agent).
+
 ## What's in here
 
 | Path | What |
@@ -55,6 +60,7 @@ runs through one helper — `./lab help` lists its commands.
 | `facilitator/` | run-of-show and troubleshooting for whoever runs the session |
 | `takehome/kubernetes/` | the same router config on a `kind` cluster |
 | `DESIGN.md` | why the workshop is shaped the way it is |
+| `.agents/skills/`, `AGENTS.md` | agent skills and instructions for your coding agent (`.claude/skills/` links to the same skills) |
 
 ## Credits
 

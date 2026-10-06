@@ -11,6 +11,12 @@ The slides carry presenter notes that match this page. Clock times are from the 
 - [ ] Do one full run as an attendee with the workshop key in a Codespace (`./lab llm workshop`) and once with `./lab llm scripted`.
 - [ ] Shorten the lab-site URL and the Codespaces URL (QR codes are on slides 2 and the last slide; URLs live in `slides/src/config.ts`).
 - [ ] Have a personal hotspot as backup for the presenter laptop.
+- [ ] **Coding agents (optional path).** In a fresh Codespace, open Copilot Chat and type `/`: the four
+      `agent-router-*` skills should be listed. Ask it *"I'm on Lab 2, give me hint 1"* and check that
+      it coaches instead of editing `workspace/mcproute.yaml`. Then start the `envoy-docs` server from
+      `.vscode/mcp.json` and complete the sign-in. Repeat with one terminal agent (Claude Code: approve
+      `envoy-docs`, then `/mcp` → Authenticate). Note which sign-ins work from a Codespace, so you can
+      tell the room. If none do, say "skip the docs server; the skills are enough".
 
 ## Workshop LLM keys
 
@@ -59,7 +65,9 @@ and make Lab 3 a guided demo on your screen while attendees follow along. Never 
 "real tool call through the router" moments — they are the promise of the session.
 
 **If you are running early:** invite people to the Stretch tasks, or demo *Bring your own agent*
-with Claude Code / VS Code pointed at the router (`./lab connect`).
+with Claude Code / VS Code pointed at the router (`./lab connect`). With more time, demo the
+*builder* role: ask a coding agent to write an `MCPRoute` for a made-up set of servers, then review
+it live against the checklist on the *Bring your own agent* page. Find one thing to fix.
 
 ## Checkpoints at a glance
 
@@ -86,6 +94,9 @@ with Claude Code / VS Code pointed at the router (`./lab connect`).
 | `agent.id` empty in logs | only one of the two Lab 3 edits is done | `claimToHeaders` **and** `OTEL_AIGW_REQUEST_HEADER_ATTRIBUTES`, then `./lab run` |
 | No traces in otel-tui | otel-tui started after the router? (fine) / started in the wrong place | `./lab otel` must run in the same Codespace/machine |
 | Local Windows / Intel Mac | no aigw build for that platform | Codespace |
+| "My agent won't just write the config" | the `agent-router-lab-partner` skill: by design | They can ask outright, or `./lab solution N`; explain why it coaches |
+| Coding agent doesn't see the skills | started outside the workshop folder, or the client doesn't read `.agents/skills/` | Start it in the repo root; Claude Code uses `.claude/skills/` (symlinks) |
+| Docs MCP server sign-in hangs in a Codespace | terminal agents finish the sign-in on the Codespace's `localhost` | Skip it; the skills cover the labs |
 
 ## After the session
 

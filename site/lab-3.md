@@ -109,6 +109,10 @@ Open the trace of the production run. Find the span that is marked as an error, 
 The router's `CallTool` span carries status **Error: authorization failed**, plus `agent.id: release-bot`, `mcp.tool.name: deploy__deploy` and the run's `session.id`. The agent's own `execute_tool` span above it only knows it got a `403`.
 :::
 
+::: tip Ask your coding agent (optional)
+*"Using only .lab/access.log, what can you tell me about the denied call, and what can't you?"* Compare its answer with the trace you just opened. Knowing which signal answers which question is the point of this lab. [Set up your agent](./coding-agent).
+:::
+
 Finally, ask the checkpoint what it thinks:
 
 ```bash

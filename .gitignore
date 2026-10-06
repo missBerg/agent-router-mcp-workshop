@@ -7,3 +7,6 @@ dist/
 site/.vitepress/cache/
 site/.vitepress/dist/
 .DS_Store
+
+# Claude Code per-user settings (the shared skills in .claude/skills/ are tracked)
+.claude/settings.local.json

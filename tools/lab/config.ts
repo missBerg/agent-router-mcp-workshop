@@ -89,7 +89,7 @@ const BACKEND_REF_KEYS = ["name", "kind", "group", "namespace", "port", "path", 
 const SELECTOR_KEYS = ["include", "includeRegex", "exclude", "excludeRegex"];
 const SECURITY_KEYS = ["oauth", "apiKeyAuth", "extAuth", "authorization"];
 /** In upstream releases newer than the workshop's pinned aigw v1.1.0. */
-const NEWER_THAN_PINNED = ["prefixMode", "backendTrafficPolicy", "promptSelector", "mergeType"];
+export const NEWER_THAN_PINNED = ["prefixMode", "backendTrafficPolicy", "promptSelector", "mergeType"];
 const RULE_KEYS = ["source", "target", "cel", "action"];
 const KNOWN_SCOPES = ["issues:read", "issues:write", "ci:read", "docs:read", "chat:write", "deploy:write"];
 

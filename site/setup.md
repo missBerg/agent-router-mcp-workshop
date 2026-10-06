@@ -91,6 +91,10 @@ Your Node.js version and LLM line will differ. Every red ✗ comes with a fix on
 
 In a Codespace, `./lab doctor` already ran when the terminal opened. A red "No LLM chosen yet" there is expected until you run `./lab llm`.
 
+::: tip Using a coding agent? (optional)
+This repository ships agent skills that make Claude Code, GitHub Copilot, Codex, Cursor or Gemini CLI your **lab partner**. It explains, gives hints and runs the checks, but leaves the config to you. Open your agent in the workshop folder; [Your coding agent](./coding-agent) has the details and an Envoy docs server to add. Short on time? Skip it.
+:::
+
 ## Meet the agent
 
 The ship-it agent has one task:

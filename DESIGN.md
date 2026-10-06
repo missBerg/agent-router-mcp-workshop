@@ -21,6 +21,7 @@
 | Mixed pace in the room | Every lab has Core / Stretch / Explore tiers and a one-command catch-up (`./lab solution N`) |
 | Conference wifi, public MCP servers can break | Core path uses 5 local MCP servers; real servers (GitHub, Kiwi) are optional extras |
 | Attendees bring different LLM keys (or none) | Agent speaks OpenAI-compatible chat; provider presets; a deterministic `scripted` brain as last resort |
+| Attendees bring coding agents that could write every config for them | Agent skills in the repo make the agent a *lab partner* during the labs and a *builder* only afterwards (section 7); optional, no extra session time |
 
 **Pinned versions**: Agent Router (`aigw`) **v1.1.0** · Envoy 1.38.1 · MCP TypeScript SDK 1.x · Node 24 LTS (≥ 22.18 locally).
 
@@ -56,6 +57,7 @@ fades into the background and attention goes to the content.
 | **Immediate formative feedback** (Hattie & Timperley) | `./lab check N` verifies the checkpoint and says *what* is wrong, not just pass/fail |
 | **Retrieval practice & reflection** | Two short "Reflect" questions per lab; wrap-up recall slide |
 | **Differentiation for self-pacing** | Core / Stretch / Explore tiers; `./lab solution N` lets anyone jump to any lab with a known-good state |
+| **Cognitive apprenticeship** — coaching, then fading (Collins, Brown & Newman) | A coding agent coaches during the labs (the `agent-router-lab-partner` skill), then becomes the builder for the attendee's own servers once they can review its work (section 7) |
 
 ## 3. Session macro-structure (75 min)
 
@@ -209,25 +211,53 @@ Attendees edit **one file**: `workspace/mcproute.yaml` (and, in Lab 3, `workspac
 
 One page with copy-paste config for Claude Code, Cursor, VS Code, Goose, Codex and any MCP client:
 point it at `http://localhost:1975/mcp` with `Authorization: Bearer $(./lab token release-bot)`.
-In Codespaces: run the agent CLI inside the Codespace, or make port 1975 public.
+In Codespaces: run the agent CLI inside the Codespace, or forward the port with `gh codespace ports forward 1975:1975` (never make it public: it also proxies the LLM key).
 
 ### Take-home — Kubernetes
 
 Same `MCPRoute`, applied with `kubectl` to a `kind` cluster running Envoy Gateway + Agent Router (Helm,
 v1.1.0). Shows "what works on your laptop deploys unchanged".
 
-## 7. Environments
+## 7. Coding agents in the room
+
+Most attendees now write config with a coding agent, which could pass every `./lab check` for them.
+So the scarce thing is the **building blocks**: the mental model to judge whether a route filters,
+authorizes and records what it should. The repo ships [agent skills](https://agentskills.io) in
+`.agents/skills/` (linked from `.claude/skills/` for Claude Code) that give the agent two roles:
+
+| Skill | Role |
+| --- | --- |
+| `agent-router-lab-partner` | **During the labs**: asks for the prediction, hints one step at a time, diagnoses with `./lab` commands, and doesn't edit `workspace/` unless asked outright. |
+| `agent-router-aggregate-filter`, `-authorize`, `-observe` | **The building blocks**, one per lab, with a review checklist. After the labs the agent becomes the **builder** for the attendee's own servers, and the attendee reviews its work (LO5). |
+
+The optional Envoy docs MCP server (`https://envoy-gateway.mcp.kapa.ai`, in `.mcp.json` and
+`.vscode/mcp.json`):
+
+- *Isn't version-pinned.* It searches every release's docs plus GitHub `main`, which differs from
+  v1.1.0 (newer fields, CEL errors that deny). The skills point at `/docs/1.1/`, and `./lab run`
+  flags newer fields.
+- *Requires OAuth* (401 → `resource_metadata` → PKCE), the flow Lab 2 teaches. Terminal agents in a
+  Codespace may not complete the sign-in, so the skills alone must carry the labs.
+
+Everything is optional and costs no session time. `tools/agents.test.ts` keeps the skills in step
+with the lab CLI, the repo and `AIGW_VERSION`.
+
+## 8. Environments
 
 | Path | Who | How |
 | --- | --- | --- |
 | **Codespaces** (recommended in-session) | Everyone, any OS | "Open in Codespaces" button / QR. Devcontainer uses a pre-built image (GHCR) with `aigw`, Envoy and otel-tui baked in (`npm ci` runs on create). LLM: a session-only key the facilitator hands out (`./lab llm workshop`; endpoint in `labs/workshop-llm.env`, key shown on the slide from an uncommitted `slides/.env.local`), BYO key, or the `scripted` brain. (GitHub Models, the original zero-key plan, was retired on 2026-07-30 — verified in a Codespace: `models.github.ai` answers every request with a bare `200 OK`.) |
 | **Local** | macOS arm64 / Linux, decent bandwidth | `./lab setup` downloads `aigw` v1.1.0 + otel-tui; Envoy follows on the first `./lab run`, and the `lab` wrapper runs `npm ci` on first use. Warned as ~330 MB |
 
-## 8. Repository layout
+## 9. Repository layout
 
 ```
 README.md                  attendee entry point (Codespaces button, link to site)
 DESIGN.md                  this document
+AGENTS.md · CLAUDE.md      orientation for coding agents (CLAUDE.md imports AGENTS.md)
+.agents/skills/            agent skills: lab partner + the three building blocks (section 7)
+.claude/skills/            symlinks to .agents/skills/ for Claude Code
+.mcp.json · .vscode/       the Envoy docs MCP server for Claude Code / VS Code
 lab                        the lab CLI (bash entry → node)
 package.json               runtime deps for servers, agent and lab CLI
 servers/                   5 mock MCP servers + the shared Lakeshore Labs world
@@ -248,7 +278,7 @@ takehome/kubernetes/       kind + Helm + the same MCPRoute
 .github/workflows/         image build, Pages deploy, end-to-end lab test (scripted brain)
 ```
 
-## 9. The lab CLI (`./lab`)
+## 10. The lab CLI (`./lab`)
 
 | Command | What it does |
 | --- | --- |
@@ -266,7 +296,7 @@ takehome/kubernetes/       kind + Helm + the same MCPRoute
 | `./lab solution <n>` | Apply the solution (backs up yours) |
 | `./lab stop` / `./lab reset` | Stop everything / back to a clean slate |
 
-## 10. Risks & mitigations
+## 11. Risks & mitigations
 
 | Risk | Mitigation |
 | --- | --- |
@@ -276,8 +306,10 @@ takehome/kubernetes/       kind + Helm + the same MCPRoute
 | Someone falls behind | `./lab solution N`; every lab starts from a known state |
 | Public MCP server outage | Core path is 100% local |
 | aigw restart time (~7 s) | `./lab run` shows a spinner + health wait; edits batch into one restart |
+| A coding agent writes the lab config, and the attendee learns nothing | `agent-router-lab-partner` skill: hints and checks, no edits to `workspace/` unless asked outright |
+| The docs MCP server answers from a newer release than v1.1.0 | Skills point at `/docs/1.1/`; `./lab run` flags newer fields |
 
-## 11. Upstream papercuts found while designing (worth filing)
+## 12. Upstream papercuts found while designing (worth filing)
 
 1. CEL rules that read `request.mcp.params.arguments.<field>` log `ERROR failed to evaluate authorization CEL … no such key` on every `tools/list` and on calls to other tools without that field — even with a `request.mcp.method` or `has(request.mcp.params.arguments)` guard. Optional access (`.?arguments.?environment.orValue("")`) is clean. Worth a docs example.
 2. A tool allowed only under an argument condition is hidden from `tools/list` — correct but surprising; worth a docs note recommending the deny-first pattern.
